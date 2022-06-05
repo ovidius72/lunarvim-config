@@ -8,15 +8,13 @@ an executable
 ]]
 -- THESE ARE EXAMPLE CONFIGS FEEL FREE TO CHANGE TO WHATEVER YOU WANT
 
--- require("user")
+require("user")
+require("overrides")
 -- general
 lvim.log.level = "warn"
-lvim.format_on_save = true
+lvim.format_on_save = false
 lvim.colorscheme = "catppuccin"
 vim.g.catppuccin_flavour = 'mocha'
-
-vim.opt.relativenumber = true
-vim.opt.clipboard = ""
 
 -- to disable icons and use a minimalist setup, uncomment the following
 -- lvim.use_icons = false
@@ -24,6 +22,8 @@ vim.opt.clipboard = ""
 -- keymappings [view all the defaults by pressing <leader>Lk]
 lvim.leader = "space"
 -- add your own keymapping
+lvim.keys.insert_mode["<C-l>"] = "<Esc>ea"
+
 lvim.keys.normal_mode["<C-s>"] = ":w<cr>"
 lvim.keys.normal_mode["<leader>fs"] = ":w<cr>"
 lvim.keys.normal_mode["<leader>["] = ":NvimTreeToggle<cr>"
@@ -34,8 +34,8 @@ lvim.keys.normal_mode["<leader>wd"] = "<C-w>q"
 lvim.keys.normal_mode["<leader><Tab>"] = "<C-^>"
 lvim.keys.normal_mode["<leader>l"] = ":Telescope buffers<CR>"
 -- unmap a default keymapping
--- vim.keymap.del("n", "<C-Up>")
--- vim.keymap.del("n", "<leader>c")
+-- vim.keymap.del("n", "K")
+-- vim.keymap.del("n", "<leader>w")
 -- override a default keymapping
 -- lvim.keys.normal_mode["<C-q>"] = ":q<cr>" -- or vim.keymap.set("n", "<C-q>", ":q<cr>" )
 
@@ -61,98 +61,6 @@ lvim.builtin.telescope.defaults.mappings = {
 
 -- Use which-key to add extra bindings with the leader-key prefix
 -- lvim.builtin.which_key.mappings["P"] = { "<cmd>Telescope projects<CR>", "Projects" }
-lvim.builtin.which_key.mappings["l"] = { "<cmd>Telescope buffers<cr>", "Open Recent File" }
-lvim.builtin.which_key.mappings["/"] = { "<cmd>BufferLinePick<cr>", "Pick buffer" }
-lvim.builtin.which_key.mappings["]"] = { "<cmd>:NvimTreeToggle<cr>", "Toggle Explorer" }
-lvim.builtin.which_key.mappings["["] = { "<cmd>:NvimTreeFocus<cr>", "Focus Explorer" }
-lvim.builtin.which_key.mappings["<Tab>"] = { "<C-^>", "Alternate Buffer" }
-lvim.builtin.which_key.mappings["w"] = {
-  name = 'Window',
-  d = { "<C-w>q", 'Close' },
-  v = { "<C-w>v", "Split Vertical" },
-  s = { "<C-w>s", "Split Horizontal" },
-}
-lvim.builtin.which_key.mappings["b"] = {
-  name = 'Buffers',
-  k = { "<cmd>BufferKill<CR>", "Kill" },
-  S = { ":w<cr>", "Save Current " },
-  j = { "<cmd>BufferLinePick<cr>", "Jump" },
-  f = { "<cmd>Telescope buffers<cr>", "Find" },
-  b = { "<cmd>BufferLineCyclePrev<cr>", "Previous" },
-  -- w = { "<cmd>BufferWipeout<cr>", "Wipeout" }, -- TODO: implement this for bufferline
-  e = { "<cmd>BufferLinePickClose<cr>", "Pick which buffer to close" },
-  h = { "<cmd>BufferLineCloseLeft<cr>", "Close all to the left" },
-  l = {
-    "<cmd>BufferLineCloseRight<cr>",
-    "Close all to the right",
-  },
-  D = {
-    "<cmd>BufferLineSortByDirectory<cr>",
-    "Sort by directory",
-  },
-  L = {
-    "<cmd>BufferLineSortByExtension<cr>",
-    "Sort by language",
-  },
-}
-lvim.builtin.which_key.mappings["c"] = {
-  name = "Code+Lsp",
-  a = { "<cmd>lua vim.lsp.buf.code_action()<cr>", "Code Action" },
-  o = { "<cmd>lua vim.lsp.buf.code_action()<cr>", "Code Action" },
-  d = { "<cmd>Telescope diagnostics bufnr=0 theme=get_ivy<cr>", "Buffer Diagnostics" },
-  w = { "<cmd>Telescope diagnostics<cr>", "Diagnostics" },
-  f = { require("lvim.lsp.utils").format, "Format" },
-  i = { "<cmd>LspInfo<cr>", "Info" },
-  I = { "<cmd>LspInstallInfo<cr>", "Installer Info" },
-  j = {
-    vim.diagnostic.goto_next,
-    "Next Diagnostic",
-  },
-  k = {
-    vim.diagnostic.goto_prev,
-    "Prev Diagnostic",
-  },
-  l = { vim.lsp.codelens.run, "CodeLens Action" },
-  p = {
-    name = "Peek",
-    d = { "<cmd>lua require('lvim.lsp.peek').Peek('definition')<cr>", "Definition" },
-    t = { "<cmd>lua require('lvim.lsp.peek').Peek('typeDefinition')<cr>", "Type Definition" },
-    i = { "<cmd>lua require('lvim.lsp.peek').Peek('implementation')<cr>", "Implementation" },
-  },
-  q = { vim.diagnostic.setloclist, "Quickfix" },
-  r = { vim.lsp.buf.rename, "Rename" },
-  s = { "<cmd>Telescope lsp_document_symbols<cr>", "Document Symbols" },
-  S = {
-    "<cmd>Telescope lsp_dynamic_workspace_symbols<cr>",
-    "Workspace Symbols",
-  },
-  e = { "<cmd>Telescope quickfix<cr>", "Telescope Quickfix" },
-}
-lvim.builtin.which_key.mappings["f"] = {
-  name = 'Files',
-  f = { require("lvim.core.telescope.custom-finders").find_project_files, "Find File" },
-  r = { "<cmd>Telescope oldfiles<cr>", "Open Recent File" },
-  s = { ":wa<cr>", "Save All" },
-  S = { ":w<cr>", "Save Current " },
-}
-lvim.builtin.which_key.mappings["o"] = {
-  name = "+Custom",
-  f = { require("lvim.lsp.utils").format, "Format" },
-  o = { "", "Organize Imports" },
-  a = { "", "Import All" },
-}
-lvim.builtin.which_key.mappings["t"] = {
-  name = "+Trouble",
-  r = { "<cmd>Trouble lsp_references<cr>", "References" },
-  t = { "<cmd>TroubleToggle<cr>", "Toggle Trouble" },
-  f = { "<cmd>Trouble lsp_definitions<cr>", "Definitions" },
-  d = { "<cmd>Trouble document_diagnostics<cr>", "Diagnostics" },
-  q = { "<cmd>Trouble quickfix<cr>", "QuickFix" },
-  l = { "<cmd>Trouble loclist<cr>", "LocationList" },
-  w = { "<cmd>Trouble workspace_diagnostics<cr>", "Wordspace Diagnostics" },
-}
-lvim.builtin.which_key.mappings["ss"] = { "<cmd>Telescope current_buffer_fuzzy_find<cr>", "Find in buffer" }
-lvim.builtin.which_key.mappings["sa"] = { "<cmd>Telescope grep_string<cr>", "Find Word" }
 
 -- TODO: User Config for predefined plugins
 -- After changing plugin config exit and reopen LunarVim, Run :PackerInstall :PackerCompile
@@ -161,6 +69,7 @@ lvim.builtin.alpha.mode = "dashboard"
 lvim.builtin.notify.active = true
 lvim.builtin.terminal.active = true
 lvim.builtin.telescope_fzy = true
+lvim.builtin.peek = true
 lvim.builtin.telescope.defaults.layout_strategy = 'vertical'
 lvim.builtin.telescope.defaults.sorting_strategy = 'descending'
 lvim.builtin.telescope.defaults.layout_config.vertical = {
@@ -198,7 +107,8 @@ lvim.builtin.treesitter.highlight.enabled = true
 
 -- ---@usage disable automatic installation of servers
 -- lvim.lsp.automatic_servers_installation = false
-
+lvim.lsp.peek.max_height = 115
+lvim.lsp.peek.max_width = 85
 -- ---configure a server manually. !!Requires `:LvimCacheReset` to take effect!!
 -- ---see the full default list `:lua print(vim.inspect(lvim.lsp.automatic_configuration.skipped_servers))`
 -- vim.list_extend(lvim.lsp.automatic_configuration.skipped_servers, { "pyright" })
@@ -263,9 +173,33 @@ lvim.plugins = {
     cmd = "TroubleToggle",
   },
   {
+    "tanvirtin/vgit.nvim",
+    requires = {
+      "nvim-lua/plenary.nvim",
+      config = function()
+        require("vgit").setup()
+      end,
+    },
+  },
+  {
     "catppuccin/nvim",
     as = "catppuccin"
   },
+  { "SmiteshP/nvim-gps",
+    requires = "nvim-treesitter/nvim-treesitter",
+    config = function()
+      require("nvim-gps").setup(require "user.plugins.gps")
+    end,
+  },
+  {
+    "ray-x/lsp_signature.nvim",
+    event = "BufRead",
+    config = function()
+      require("lsp_signature").setup()
+    end,
+  },
+  { "hrsh7th/cmp-emoji" },
+  { "stevearc/dressing.nvim" },
   { "jose-elias-alvarez/nvim-lsp-ts-utils", config = function()
     local lspconfig = require('lspconfig')
     lspconfig.tsserver.setup({
@@ -296,7 +230,7 @@ lvim.plugins = {
           filter_out_diagnostics_by_code = {},
 
           -- inlay hints
-          auto_inlay_hints = true,
+          auto_inlay_hints = false,
           inlay_hints_highlight = "Comment",
           inlay_hints_priority = 200, -- priority of the hint extmarks
           inlay_hints_throttle = 150, -- throttle the inlay hint request
@@ -329,6 +263,32 @@ lvim.plugins = {
 }
 
 -- Autocommands (https://neovim.io/doc/user/autocmd.html)
+vim.api.nvim_create_autocmd({ "CursorMoved", "BUfWinEnter", "BufFilePost" }, {
+  callback = function()
+    local winbar_filetype_exclude = {
+      "help",
+      "startify",
+      "dashboard",
+      "packer",
+      "neogitstatus",
+      "NvimTree",
+      "Trouble",
+      "alpha",
+      "lir",
+      "Outline",
+      "spectre_panel",
+    }
+    if vim.tbl_contains(winbar_filetype_exclude, vim.bo.filetype) then
+      vim.opt_local.winbar = nil
+      return
+    end
+    local value = require("user.winbar").gps()
+    if value == nil then
+      value = require("user.winbar").filename()
+    end
+    vim.opt_local.winbar = value
+  end,
+})
 -- vim.api.nvim_create_autocmd("BufEnter", {
 --   pattern = { "*.json", "*.jsonc" },
 --   -- enable wrap mode for json files only
