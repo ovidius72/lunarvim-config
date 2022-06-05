@@ -14,7 +14,7 @@ require("overrides")
 lvim.log.level = "warn"
 lvim.format_on_save = false
 lvim.colorscheme = "catppuccin"
-vim.g.catppuccin_flavour = 'mocha'
+vim.g.catppuccin_flavour = 'macchiato'
 
 -- to disable icons and use a minimalist setup, uncomment the following
 -- lvim.use_icons = false
@@ -26,13 +26,23 @@ lvim.keys.insert_mode["<C-l>"] = "<Esc>ea"
 
 lvim.keys.normal_mode["<C-s>"] = ":w<cr>"
 lvim.keys.normal_mode["<leader>fs"] = ":w<cr>"
-lvim.keys.normal_mode["<leader>["] = ":NvimTreeToggle<cr>"
-lvim.keys.normal_mode["<leader>]"] = ":NvimTreeFocus<cr>"
+-- lvim.keys.normal_mode["<leader>["] = ":NvimTreeToggle<cr>"
+-- lvim.keys.normal_mode["<leader>]"] = ":NvimTreeFindFile<cr>"
 lvim.keys.normal_mode["<leader>wv"] = ":vs<cr>"
 lvim.keys.normal_mode["<leader>ws"] = ":sp<cr>"
 lvim.keys.normal_mode["<leader>wd"] = "<C-w>q"
 lvim.keys.normal_mode["<leader><Tab>"] = "<C-^>"
 lvim.keys.normal_mode["<leader>l"] = ":Telescope buffers<CR>"
+
+vim.keymap.set('n', '<A-h>', require('smart-splits').resize_left)
+vim.keymap.set('n', '<A-j>', require('smart-splits').resize_down)
+vim.keymap.set('n', '<A-k>', require('smart-splits').resize_up)
+vim.keymap.set('n', '<A-l>', require('smart-splits').resize_right)
+-- moving between splits
+-- vim.keymap.set('n', '<C-h>', require('smart-splits').move_cursor_left)
+-- vim.keymap.set('n', '<C-j>', require('smart-splits').move_cursor_down)
+-- vim.keymap.set('n', '<C-k>', require('smart-splits').move_cursor_up)
+-- vim.keymap.set('n', '<C-l>', require('smart-splits').move_cursor_right)
 -- unmap a default keymapping
 -- vim.keymap.del("n", "K")
 -- vim.keymap.del("n", "<leader>w")
@@ -59,8 +69,6 @@ lvim.builtin.telescope.defaults.mappings = {
   },
 }
 
--- Use which-key to add extra bindings with the leader-key prefix
--- lvim.builtin.which_key.mappings["P"] = { "<cmd>Telescope projects<CR>", "Projects" }
 
 -- TODO: User Config for predefined plugins
 -- After changing plugin config exit and reopen LunarVim, Run :PackerInstall :PackerCompile
@@ -69,7 +77,7 @@ lvim.builtin.alpha.mode = "dashboard"
 lvim.builtin.notify.active = true
 lvim.builtin.terminal.active = true
 lvim.builtin.telescope_fzy = true
-lvim.builtin.peek = true
+lvim.builtin.telescope_fzf = true
 lvim.builtin.telescope.defaults.layout_strategy = 'vertical'
 lvim.builtin.telescope.defaults.sorting_strategy = 'descending'
 lvim.builtin.telescope.defaults.layout_config.vertical = {
@@ -84,6 +92,10 @@ lvim.builtin.intend_line = true
 lvim.builtin.nvimtree.setup.view.side = "left"
 lvim.builtin.nvimtree.show_icons.git = 1
 
+lvim.builtin.telescope.on_config_done = function(telescope)
+  pcall(telescope.load_extension, "fzy_native")
+  pcall(telescope.load_extension, "fzf_native")
+end
 -- if you don't want all the parsers change this to a table of the ones you want
 lvim.builtin.treesitter.ensure_installed = {
   "bash",
@@ -198,68 +210,70 @@ lvim.plugins = {
       require("lsp_signature").setup()
     end,
   },
+  {
+    "sindrets/diffview.nvim",
+    event = "BufRead",
+  },
+  {
+    "nvim-telescope/telescope-fzy-native.nvim",
+    requires = 'nvim-lua/plenary.nvim',
+    run = "make",
+    event = "BufRead",
+  },
+
   { "hrsh7th/cmp-emoji" },
   { "stevearc/dressing.nvim" },
-  { "jose-elias-alvarez/nvim-lsp-ts-utils", config = function()
-    local lspconfig = require('lspconfig')
-    lspconfig.tsserver.setup({
-      init_options = require("nvim-lsp-ts-utils").init_options,
-      on_attach = function(client, bufnr)
-        local ts_utils = require('nvim-lsp-ts-utils')
-        ts_utils.setup({
-          debug = false,
-          disable_commands = false,
-          enable_import_on_completion = true,
+  {
+    "windwp/nvim-spectre",
+    event = "BufRead",
+    config = function()
+      require("spectre").setup()
+    end,
+  },
+  { "phaazon/hop.nvim",
+    config = function()
+      require('hop').setup(require('user.plugins.hop-config'))
+    end
+  },
+  { "jose-elias-alvarez/nvim-lsp-ts-utils" },
+  { "ray-x/navigator.lua",
+    requires = {
+      { 'ray-x/guihua.lua', run = 'cd lua/fzy && make' },
+      { 'neovim/nvim-lspconfig' },
+    }
+  },
+  {
+    'machakann/vim-sandwich',
+    config = function()
+      -- Use vim surround-like keybindings
+      vim.cmd('runtime macros/sandwich/keymap/surround.vim')
+      -- '{' will insert space, '}' will not
+      vim.g['sandwich#recipes'] = vim.list_extend(vim.g['sandwich#recipes'], {
+        { buns = { '{ ', ' }' }, nesting = 1, match_syntax = 1, kind = { 'add', 'replace' }, action = { 'add' }, input = { '{' } },
+        { buns = { '[ ', ' ]' }, nesting = 1, match_syntax = 1, kind = { 'add', 'replace' }, action = { 'add' }, input = { '[' } },
+        { buns = { '( ', ' )' }, nesting = 1, match_syntax = 1, kind = { 'add', 'replace' }, action = { 'add' }, input = { '(' } },
+        { buns = { '{\\s*', '\\s*}' }, nesting = 1, regex = 1, match_syntax = 1, kind = { 'delete', 'replace', 'textobj' }, action = { 'delete' }, input = { '{' } },
+        { buns = { '\\[\\s*', '\\s*\\]' }, nesting = 1, regex = 1, match_syntax = 1, kind = { 'delete', 'replace', 'textobj' }, action = { 'delete' }, input = { '[' } },
+        { buns = { '(\\s*', '\\s*)' }, nesting = 1, regex = 1, match_syntax = 1, kind = { 'delete', 'replace', 'textobj' }, action = { 'delete' }, input = { '(' } }
+      })
+      vim.cmd [[
+        let g:sandwich_no_default_key_mappings = 1
+        silent! nmap <unique><silent><leader>vsd <Plug>(operator-sandwich-delete)<Plug>(operator-sandwich-release-count)<Plug>(textobj-sandwich-query-a)
+        silent! nmap <unique><silent><leader>vsr <Plug>(operator-sandwich-replace)<Plug>(operator-sandwich-release-count)<Plug>(textobj-sandwich-query-a)
+        silent! nmap <unique><silent><leader>vsdb <Plug>(operator-sandwich-delete)<Plug>(operator-sandwich-release-count)<Plug>(textobj-sandwich-auto-a)
+        silent! nmap <unique><silent><leader>vsrb <Plug>(operator-sandwich-replace)<Plug>(operator-sandwich-release-count)<Plug>(textobj-sandwich-auto-a)
 
-          -- import all
-          import_all_timeout = 5000, -- ms
-          -- lower numbers = higher priority
-          import_all_priorities = {
-            same_file = 1, -- add to existing import statement
-            local_files = 2, -- git files or files with relative path markers
-            buffer_content = 3, -- loaded buffer content
-            buffers = 4, -- loaded buffer names
-          },
-          import_all_scan_buffers = 100,
-          import_all_select_source = false,
-          -- if false will avoid organizing imports
-          always_organize_imports = true,
-
-          -- filter diagnostics
-          filter_out_diagnostics_by_severity = {},
-          filter_out_diagnostics_by_code = {},
-
-          -- inlay hints
-          auto_inlay_hints = false,
-          inlay_hints_highlight = "Comment",
-          inlay_hints_priority = 200, -- priority of the hint extmarks
-          inlay_hints_throttle = 150, -- throttle the inlay hint request
-          inlay_hints_format = { -- format options for individual hint kind
-            Type = {},
-            Parameter = {},
-            Enum = {},
-            -- Example format customization for `Type` kind:
-            -- Type = {
-            --     highlight = "Comment",
-            --     text = function(text)
-            --         return "->" .. text:sub(2)
-            --     end,
-            -- },
-          },
-
-          -- update imports on file move
-          update_imports_on_move = false,
-          require_confirmation_on_move = true,
-          watch_dir = nil,
-        })
-        ts_utils.setup_client(client)
-        local opts = { silent = true }
-        vim.api.nvim_buf_set_keymap(bufnr, "n", "<leader>oo", ":TSLspOrganize<CR>", opts)
-        vim.api.nvim_buf_set_keymap(bufnr, "n", "<leader>rf", ":TSLspRenameFile<CR>", opts)
-        vim.api.nvim_buf_set_keymap(bufnr, "n", "<leader>oa", ":TSLspImportAll<CR>", opts)
-      end
-    })
-  end }
+        let g:operator_sandwich_no_default_key_mappings = 1
+        " add
+        silent! map <unique><leader>vsa <Plug>(operator-sandwich-add)
+        " delete
+        silent! xmap <unique><leader>vsd <Plug>(operator-sandwich-delete)
+        " replace
+        silent! xmap <unique><leader>vsr <Plug>(operator-sandwich-replace)
+      ]]
+    end
+  },
+  { 'mrjones2014/smart-splits.nvim' }
 }
 
 -- Autocommands (https://neovim.io/doc/user/autocmd.html)

@@ -1,1 +1,1 @@
-require("overrides.wich-key")
+require("overrides.which-key")

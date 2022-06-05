@@ -1,8 +1,8 @@
 lvim.builtin.which_key.mappings["l"] = { "<cmd>Telescope buffers<cr>", "Open Recent File" }
 lvim.builtin.which_key.mappings["i"] = { require("lvim.core.telescope.custom-finders").find_project_files, "Find File" }
 lvim.builtin.which_key.mappings["/"] = { "<cmd>BufferLinePick<cr>", "Pick buffer" }
-lvim.builtin.which_key.mappings["]"] = { "<cmd>:NvimTreeToggle<cr>", "Toggle Explorer" }
-lvim.builtin.which_key.mappings["["] = { "<cmd>:NvimTreeFocus<cr>", "Focus Explorer" }
+lvim.builtin.which_key.mappings["["] = { "<cmd>:NvimTreeToggle<cr>", "Toggle Explorer" }
+lvim.builtin.which_key.mappings["]"] = { "<cmd>:NvimTreeFindFileToggle<cr>", "Focus Explorer" }
 lvim.builtin.which_key.mappings["<Tab>"] = { "<C-^>", "Alternate Buffer" }
 lvim.builtin.which_key.mappings["w"] = {
   name = 'Window',
@@ -73,6 +73,7 @@ lvim.builtin.which_key.mappings["f"] = {
   r = { "<cmd>Telescope oldfiles<cr>", "Open Recent File" },
   s = { ":wa<cr>", "Save All" },
   S = { ":w<cr>", "Save Current " },
+  w = { "<cmd>Telescope grep_string<cr>", "Find Word Under Caret" }
 }
 lvim.builtin.which_key.mappings["o"] = {
   name = "+Custom",
@@ -84,6 +85,8 @@ lvim.builtin.which_key.mappings["o"] = {
   p = { "", "Print Log(By File Type)" },
   r = { "", "Console.Log(As Object)" },
 }
+-- Use which-key to add extra bindings with the leader-key prefix
+lvim.builtin.which_key.mappings["P"] = { "<cmd>Telescope projects<CR>", "Projects" }
 lvim.builtin.which_key.mappings["t"] = {
   name = "+Trouble",
   r = { "<cmd>Trouble lsp_references<cr>", "References" },
@@ -95,4 +98,4 @@ lvim.builtin.which_key.mappings["t"] = {
   w = { "<cmd>Trouble workspace_diagnostics<cr>", "Wordspace Diagnostics" },
 }
 lvim.builtin.which_key.mappings["ss"] = { "<cmd>Telescope current_buffer_fuzzy_find<cr>", "Find in buffer" }
-lvim.builtin.which_key.mappings["sa"] = { "<cmd>Telescope grep_string<cr>", "Find Word" }
+lvim.builtin.which_key.mappings["sa"] = { "<cmd>Telescope live_grep<cr>", "Grep Text" }

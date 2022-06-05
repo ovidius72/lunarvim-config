@@ -30,6 +30,9 @@ M.filename = function()
     file_icon, file_icon_color = require("nvim-web-devicons").get_icon_color(filename, extension, { default = default })
     local hl_group = "lualine_a_command" .. extension
     vim.api.nvim_set_hl(0, hl_group, { fg = file_icon_color })
+    if file_icon == nil then
+      file_icon = ''
+    end
     return " " .. "%#" .. hl_group .. "#" .. file_icon .. "%*" .. " " .. "%#lualine_a_command#" .. filename .. "%*"
   end
 end
