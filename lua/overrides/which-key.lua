@@ -2,7 +2,7 @@ lvim.builtin.which_key.mappings["l"] = { "<cmd>Telescope buffers<cr>", "Open Rec
 lvim.builtin.which_key.mappings["i"] = { require("lvim.core.telescope.custom-finders").find_project_files, "Find File" }
 lvim.builtin.which_key.mappings["/"] = { "<cmd>BufferLinePick<cr>", "Pick buffer" }
 lvim.builtin.which_key.mappings["["] = { "<cmd>:NvimTreeToggle<cr>", "Toggle Explorer" }
-lvim.builtin.which_key.mappings["]"] = { "<cmd>:NvimTreeFindFileToggle<cr>", "Focus Explorer" }
+lvim.builtin.which_key.mappings["]"] = { "<cmd>:NvimTreeFindFile<cr>", "Focus Explorer" }
 lvim.builtin.which_key.mappings["<Tab>"] = { "<C-^>", "Alternate Buffer" }
 lvim.builtin.which_key.mappings["w"] = {
   name = 'Window',
@@ -74,6 +74,18 @@ lvim.builtin.which_key.mappings["f"] = {
   s = { ":wa<cr>", "Save All" },
   S = { ":w<cr>", "Save Current " },
   w = { "<cmd>Telescope grep_string<cr>", "Find Word Under Caret" }
+}
+lvim.builtin.which_key.mappings["n"] = {
+  a = { "<cmd>lua require('neotest').run.attach()<cr>", "Attach" },
+  f = { "<cmd>lua require('neotest').run.run(vim.fn.expand('%'))<cr>", "Run File" },
+  F = { "<cmd>lua require('neotest').run.run({vim.fn.expand('%'), strategy = 'dap'})<cr>", "Debug File" },
+  l = { "<cmd>lua require('neotest').run.run_last()<cr>", "Run Last" },
+  L = { "<cmd>lua require('neotest').run.run_last({ strategy = 'dap' })<cr>", "Debug Last" },
+  n = { "<cmd>lua require('neotest').run.run()<cr>", "Run Nearest" },
+  N = { "<cmd>lua require('neotest').run.run({strategy = 'dap'})<cr>", "Debug Nearest" },
+  o = { "<cmd>lua require('neotest').output.open({ enter = true })<cr>", "Output" },
+  S = { "<cmd>lua require('neotest').run.stop()<cr>", "Stop" },
+  s = { "<cmd>lua require('neotest').summary.toggle()<cr>", "Summary" },
 }
 lvim.builtin.which_key.mappings["o"] = {
   name = "+Custom",

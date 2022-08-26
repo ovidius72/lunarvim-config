@@ -21,9 +21,11 @@ vim.g.catppuccin_flavour = 'macchiato'
 
 -- keymappings [view all the defaults by pressing <leader>Lk]
 lvim.leader = "space"
+
+lvim.builtin.cmp.formatting.kind_icons = require('user.icons').kind
 -- add your own keymapping
 lvim.keys.insert_mode["<C-l>"] = "<Esc>ea"
-
+lvim.keys.insert_mode["jj"] = "<Esc>"
 lvim.keys.normal_mode["<C-s>"] = ":w<cr>"
 lvim.keys.normal_mode["<leader>fs"] = ":w<cr>"
 -- lvim.keys.normal_mode["<leader>["] = ":NvimTreeToggle<cr>"
@@ -33,7 +35,28 @@ lvim.keys.normal_mode["<leader>ws"] = ":sp<cr>"
 lvim.keys.normal_mode["<leader>wd"] = "<C-w>q"
 lvim.keys.normal_mode["<leader><Tab>"] = "<C-^>"
 lvim.keys.normal_mode["<leader>l"] = ":Telescope buffers<CR>"
+lvim.keys.normal_mode["]g"] = "<cmd>lua require 'gitsigns'.next_hunk()<cr>"
+lvim.keys.normal_mode["[g"] = "<cmd>lua require 'gitsigns'.prev_hunk()<cr>"
+lvim.keys.normal_mode["gh"] = "<cmd>lua require 'gitsigns'.preview_hunk()<cr>"
 
+vim.api.nvim_set_keymap('n', '<A-n>', ":MoveLine(1)<CR>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<A-p>', ":MoveLine(-1)<CR>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap('v', '<A-n>', ":MoveBlock(1)<CR>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap('v', '<A-p>', ":MoveBlock(-1)<CR>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<A-o>', ":MoveHChar(1)<CR>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<A-u>', ":MoveHChar(-1)<CR>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap('v', '<A-o>', ":MoveHBlock(1)<CR>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap('v', '<A-u>', ":MoveHBlock(-1)<CR>", { noremap = true, silent = true })
+
+lvim.builtin.cmp.formatting.source_names["copilot"] = "ghu_v9g2sqDpmXflqahsBGGLz7dqkHW46w2xqHIW"
+table.insert(lvim.builtin.cmp.sources, 1, { name = "copilot" })
+
+vim.cmd("nnoremap gy <cmd>lua require('goto-preview').goto_preview_definition()<CR>")
+vim.cmd("nnoremap gY <gcmd>lua require('goto-preview').goto_preview_implementation()<CR>")
+vim.cmd("nnoremap gP <cmd>lua require('goto-preview').close_all_win()<CR>")
+
+lvim.keys.normal_mode["<A-p>"] = ":MoveLine(-1)<CR>"
+lvim.keys.visual_mode["<A-p>"] = ":MoveLine(-1)<CR>"
 vim.keymap.set('n', '<A-h>', require('smart-splits').resize_left)
 vim.keymap.set('n', '<A-j>', require('smart-splits').resize_down)
 vim.keymap.set('n', '<A-k>', require('smart-splits').resize_up)
@@ -76,6 +99,8 @@ lvim.builtin.alpha.active = true
 lvim.builtin.alpha.mode = "dashboard"
 lvim.builtin.notify.active = true
 lvim.builtin.terminal.active = true
+lvim.builtin.dap.active = true
+lvim.builtin.terminal.direction = 'horizontal'
 lvim.builtin.telescope_fzy = true
 lvim.builtin.telescope_fzf = true
 lvim.builtin.telescope.defaults.layout_strategy = 'vertical'
@@ -88,10 +113,17 @@ lvim.builtin.telescope.defaults.layout_config.vertical = {
   prompt_position = "bottom",
 }
 lvim.builtin.trouble = true
+lvim.use_icons = true
 lvim.builtin.intend_line = true
 lvim.builtin.nvimtree.setup.view.side = "left"
-lvim.builtin.nvimtree.show_icons.git = 1
-
+lvim.builtin.nvimtree.setup.view.mappings.list = {
+  { key = { "l", "<CR>", "o" }, action = "edit", mode = "n" },
+  { key = "h", action = "close_node" },
+  { key = "v", action = "vsplit" },
+  { key = "C", action = "cd" },
+  { key = "<leader>]", cb = "<C-w><C-p>" },
+}
+-- lvim.builtin.nvimtree.show_icons.git = true
 lvim.builtin.telescope.on_config_done = function(telescope)
   pcall(telescope.load_extension, "fzy_native")
   pcall(telescope.load_extension, "fzf_native")
@@ -200,14 +232,17 @@ lvim.plugins = {
   { "SmiteshP/nvim-gps",
     requires = "nvim-treesitter/nvim-treesitter",
     config = function()
-      require("nvim-gps").setup(require "user.plugins.gps")
+      require("nvim-gps").setup(require "user.plugins.configs.gps")
     end,
   },
   {
     "ray-x/lsp_signature.nvim",
     event = "BufRead",
     config = function()
-      require("lsp_signature").setup()
+      require("lsp_signature").on_attach({
+        bind = true,
+        border = 'rounded'
+      })
     end,
   },
   {
@@ -232,7 +267,7 @@ lvim.plugins = {
   },
   { "phaazon/hop.nvim",
     config = function()
-      require('hop').setup(require('user.plugins.hop-config'))
+      require('hop').setup(require('user.plugins.configs.hop-config'))
     end
   },
   { "jose-elias-alvarez/nvim-lsp-ts-utils" },
@@ -243,18 +278,29 @@ lvim.plugins = {
     }
   },
   {
+    "gaelph/logsitter.nvim",
+    requires = {
+      "nvim-treesitter/nvim-treesitter" }
+  },
+  {
     'machakann/vim-sandwich',
     config = function()
       -- Use vim surround-like keybindings
       vim.cmd('runtime macros/sandwich/keymap/surround.vim')
       -- '{' will insert space, '}' will not
       vim.g['sandwich#recipes'] = vim.list_extend(vim.g['sandwich#recipes'], {
-        { buns = { '{ ', ' }' }, nesting = 1, match_syntax = 1, kind = { 'add', 'replace' }, action = { 'add' }, input = { '{' } },
-        { buns = { '[ ', ' ]' }, nesting = 1, match_syntax = 1, kind = { 'add', 'replace' }, action = { 'add' }, input = { '[' } },
-        { buns = { '( ', ' )' }, nesting = 1, match_syntax = 1, kind = { 'add', 'replace' }, action = { 'add' }, input = { '(' } },
-        { buns = { '{\\s*', '\\s*}' }, nesting = 1, regex = 1, match_syntax = 1, kind = { 'delete', 'replace', 'textobj' }, action = { 'delete' }, input = { '{' } },
-        { buns = { '\\[\\s*', '\\s*\\]' }, nesting = 1, regex = 1, match_syntax = 1, kind = { 'delete', 'replace', 'textobj' }, action = { 'delete' }, input = { '[' } },
-        { buns = { '(\\s*', '\\s*)' }, nesting = 1, regex = 1, match_syntax = 1, kind = { 'delete', 'replace', 'textobj' }, action = { 'delete' }, input = { '(' } }
+        { buns = { '{ ', ' }' }, nesting = 1, match_syntax = 1, kind = { 'add', 'replace' }, action = { 'add' },
+          input = { '{' } },
+        { buns = { '[ ', ' ]' }, nesting = 1, match_syntax = 1, kind = { 'add', 'replace' }, action = { 'add' },
+          input = { '[' } },
+        { buns = { '( ', ' )' }, nesting = 1, match_syntax = 1, kind = { 'add', 'replace' }, action = { 'add' },
+          input = { '(' } },
+        { buns = { '{\\s*', '\\s*}' }, nesting = 1, regex = 1, match_syntax = 1,
+          kind = { 'delete', 'replace', 'textobj' }, action = { 'delete' }, input = { '{' } },
+        { buns = { '\\[\\s*', '\\s*\\]' }, nesting = 1, regex = 1, match_syntax = 1,
+          kind = { 'delete', 'replace', 'textobj' }, action = { 'delete' }, input = { '[' } },
+        { buns = { '(\\s*', '\\s*)' }, nesting = 1, regex = 1, match_syntax = 1,
+          kind = { 'delete', 'replace', 'textobj' }, action = { 'delete' }, input = { '(' } }
       })
       vim.cmd [[
         let g:sandwich_no_default_key_mappings = 1
@@ -273,7 +319,206 @@ lvim.plugins = {
       ]]
     end
   },
-  { 'mrjones2014/smart-splits.nvim' }
+  { 'mrjones2014/smart-splits.nvim' },
+  { 'fedepujol/move.nvim' },
+  -- {
+  --   "f-person/git-blame.nvim",
+  --   event = "BufRead",
+  --   config = function()
+  --     vim.cmd "highlight default link gitblame SpecialComment"
+  --     vim.g.gitblame_enabled = 0
+  --   end,
+  -- },
+  {
+    "tpope/vim-fugitive",
+    cmd = {
+      "G",
+      "Git",
+      "Gdiffsplit",
+      "Gread",
+      "Gwrite",
+      "Ggrep",
+      "GMove",
+      "GDelete",
+      "GBrowse",
+      "GRemove",
+      "GRename",
+      "Glgrep",
+      "Gedit"
+    },
+    ft = { "fugitive" }
+  },
+  {
+    "norcalli/nvim-colorizer.lua",
+    config = function()
+      require("colorizer").setup({ "css", "scss", "html", "javascript" }, {
+        RGB = true, -- #RGB hex codes
+        RRGGBB = true, -- #RRGGBB hex codes
+        RRGGBBAA = true, -- #RRGGBBAA hex codes
+        rgb_fn = true, -- CSS rgb() and rgba() functions
+        hsl_fn = true, -- CSS hsl() and hsla() functions
+        css = true, -- Enable all CSS features: rgb_fn, hsl_fn, names, RGB, RRGGBB
+        css_fn = true, -- Enable all CSS *functions*: rgb_fn, hsl_fn
+      })
+    end,
+  },
+  {
+    "rmagatti/goto-preview",
+    config = function()
+      require('goto-preview').setup {
+        width = 120; -- Width of the floating window
+        height = 25; -- Height of the floating window
+        default_mappings = false; -- Bind default mappings
+        debug = false; -- Print debug information
+        opacity = nil; -- 0-100 opacity level of the floating window where 100 is fully transparent.
+        post_open_hook = nil, -- A function taking two arguments, a buffer and a window to be ran as a hook.
+        -- You can use "default_mappings = true" setup option
+        -- Or explicitly set keybindings
+      }
+    end
+  },
+  {
+    "metakirby5/codi.vim",
+    cmd = "Codi",
+  },
+  { "zbirenbaum/copilot.lua",
+    event = { "VimEnter" },
+    config = function()
+      vim.defer_fn(function()
+        require("copilot").setup {
+          plugin_manager_path = get_runtime_dir() .. "/site/pack/packer",
+        }
+      end, 100)
+    end,
+  },
+  { "zbirenbaum/copilot-cmp",
+    after = { "copilot.lua", "nvim-cmp" },
+  },
+  {
+    "lukas-reineke/indent-blankline.nvim",
+    event = "BufRead",
+    setup = function()
+      vim.g.indentLine_enabled = 1
+      vim.g.indent_blankline_char = "▏"
+      vim.g.indent_blankline_filetype_exclude = { "help", "terminal", "dashboard" }
+      vim.g.indent_blankline_buftype_exclude = { "terminal" }
+      vim.g.indent_blankline_show_trailing_blankline_indent = false
+      vim.g.indent_blankline_show_first_indent_level = false
+      vim.g.indent_blankline_show_context = true
+      vim.g.indent_blankline_show_current_context = true
+      vim.g.indent_blankline_context_patterns = {
+        "typescriptStatementKeyword",
+        "typescriptParenExp",
+        "typescriptBlock",
+        "tsTag",
+        "typeDefinition",
+        "tsxElement",
+        "tsxTagName",
+        "func_literal",
+        "try",
+        "php",
+        "except",
+        "argument_list",
+        "dictionary",
+        "class",
+        "function",
+        "method",
+        "^if",
+        "^else",
+        "^return",
+        "tag",
+        "jsx",
+        "^while",
+        "^for",
+        "^object",
+        "^table",
+        "block",
+        "arguments",
+        "luaTable"
+      }
+    end
+  },
+  {
+    "karb94/neoscroll.nvim",
+    event = "WinScrolled",
+    config = function()
+      require('neoscroll').setup({
+        -- All these keys will be mapped to their corresponding default scrolling animation
+        mappings = { '<C-u>', '<C-d>', '<C-b>', '<C-f>',
+          '<C-y>', '<C-e>', 'zt', 'zz', 'zb' },
+        hide_cursor = true, -- Hide cursor while scrolling
+        stop_eof = true, -- Stop at <EOF> when scrolling downwards
+        use_local_scrolloff = false, -- Use the local scope of scrolloff instead of the global scope
+        respect_scrolloff = false, -- Stop scrolling when the cursor reaches the scrolloff margin of the file
+        cursor_scrolls_alone = true, -- The cursor will keep on scrolling even if the window cannot scroll further
+        easing_function = nil, -- Default easing function
+        pre_hook = nil, -- Function to run before the scrolling animation starts
+        post_hook = nil, -- Function to run after the scrolling animation ends
+      })
+    end
+  },
+  {
+    "folke/todo-comments.nvim",
+    event = "BufRead",
+    config = function()
+      require("todo-comments").setup()
+    end,
+  },
+  {
+    "itchyny/vim-cursorword",
+    event = { "BufEnter", "BufNewFile" },
+    config = function()
+      vim.api.nvim_command("augroup user_plugin_cursorword")
+      vim.api.nvim_command("autocmd!")
+      vim.api.nvim_command("autocmd FileType NvimTree,lspsagafinder,dashboard,vista let b:cursorword = 0")
+      vim.api.nvim_command("autocmd WinEnter * if &diff || &pvw | let b:cursorword = 0 | endif")
+      vim.api.nvim_command("autocmd InsertEnter * let b:cursorword = 0")
+      vim.api.nvim_command("autocmd InsertLeave * let b:cursorword = 1")
+      vim.api.nvim_command("augroup END")
+    end
+  },
+  {
+    'tpope/vim-surround',
+    keys = { "c", "d", "y" }
+    -- make sure to change the value of `timeoutlen` if it's not triggering correctly, see https://github.com/tpope/vim-surround/issues/117
+    -- setup = function()
+    --  vim.o.timeoutlen = 500
+    -- end
+  },
+  {
+    "ethanholz/nvim-lastplace",
+    event = "BufRead",
+    config = function()
+      require("nvim-lastplace").setup({
+        lastplace_ignore_buftype = { "quickfix", "nofile", "help" },
+        lastplace_ignore_filetype = {
+          "gitcommit", "gitrebase", "svn", "hgcommit",
+        },
+        lastplace_open_folds = true,
+      })
+    end,
+  },
+  { "nvim-neotest/neotest-vim-test" },
+  {
+    "nvim-neotest/neotest",
+    wants = {
+      "neotest/jest"
+    },
+    requires = {
+      "nvim-lua/plenary.nvim",
+      "nvim-treesitter/nvim-treesitter",
+      "antoinemadec/FixCursorHold.nvim",
+      "haydenmeade/neotest-jest",
+      "nvim-neotest/neotest-vim-test",
+    },
+    config = function()
+      require("neotest").setup({
+       adapters = {
+          require('neotest-jest')({ jestCommand = "npx jest"})
+        }
+      })
+    end
+  }
 }
 
 -- Autocommands (https://neovim.io/doc/user/autocmd.html)
@@ -303,6 +548,7 @@ vim.api.nvim_create_autocmd({ "CursorMoved", "BUfWinEnter", "BufFilePost" }, {
     vim.opt_local.winbar = value
   end,
 })
+
 -- vim.api.nvim_create_autocmd("BufEnter", {
 --   pattern = { "*.json", "*.jsonc" },
 --   -- enable wrap mode for json files only
