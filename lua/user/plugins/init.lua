@@ -1,2 +1,7 @@
-require("user.plugins.lsp-ts-utils")
+-- require("user.plugins.lsp-ts-utils")
+require("user.plugins.typescript-config")
+require("user.plugins.neotest-config")
+require("user.plugins.winbar-config")
+require("user.plugins.treestitter-context-config")
+require("user.plugins.material-config")
 -- require("user.plugins.navigator-config")
