@@ -4,7 +4,6 @@ require('typescript').setup({
   debug = false, -- enable debug logging for commands
   server = { -- pass options to lspconfig's setup method
     on_attach = function(client, bufnr)
-      print('DEBUGPRINT[1]: typescript-config.lua:6: bufnr=' .. vim.inspect(bufnr))
       vim.keymap.set("n", "<leader>oo", function()
         local ts = require("typescript").actions
         ts.removeUnused({ sync = true })

@@ -9,12 +9,13 @@ an executable
 -- THESE ARE EXAMPLE CONFIGS FEEL FREE TO CHANGE TO WHATEVER YOU WANT
 
 -- general
-lvim.colorscheme = "material"
+lvim.colorscheme = "catppuccin-mocha"
+-- lvim.colorscheme = "arctic"
 vim.g.material_style = 'deep ocean'
 
 lvim.log.level = "warn"
-lvim.format_on_save = false
-vim.g.catppuccin_flavour = 'macchiato'
+lvim.format_on_save = true
+vim.g.catppuccin_flavour = 'mocha'
 vim.g.sherbet_italic_keywords = true
 vim.g.sherbet_italic_functions = false
 vim.g.sherbet_italic_comments = true
@@ -64,6 +65,51 @@ lvim.keys.normal_mode['<leader>od'] = "<cmd>:DeleteDebugPrints<cr>"
 lvim.leader = "space"
 
 lvim.builtin.cmp.formatting.kind_icons = require('user.icons').kind
+lvim.builtin.cmp.formatting.format = function(entry, vim_item)
+  local max_width = lvim.builtin.cmp.formatting.max_width
+  local original_kind = vim_item.kind
+  if max_width ~= 0 and #vim_item.abbr > max_width then
+    vim_item.abbr = string.sub(vim_item.abbr, 1, max_width - 1) .. lvim.icons.ui.Ellipsis
+  end
+  if lvim.use_icons then
+    vim_item.kind = lvim.builtin.cmp.formatting.kind_icons[vim_item.kind]
+
+    -- TODO: not sure why I can't put this anywhere else
+    vim.api.nvim_set_hl(0, "CmpItemKindCopilot", { fg = "#6CC644" })
+    if entry.source.name == "copilot" then
+      vim_item.kind = lvim.icons.git.Octoface
+      vim_item.kind_hl_group = "CmpItemKindCopilot"
+    end
+
+    vim.api.nvim_set_hl(0, "CmpItemKindTabnine", { fg = "#CA42F0" })
+    if entry.source.name == "cmp_tabnine" then
+      vim_item.kind = lvim.icons.misc.Robot
+      vim_item.kind_hl_group = "CmpItemKindTabnine"
+    end
+
+    vim.api.nvim_set_hl(0, "CmpItemKindCrate", { fg = "#F64D00" })
+    if entry.source.name == "crates" then
+      vim_item.kind = lvim.icons.misc.Package
+      vim_item.kind_hl_group = "CmpItemKindCrate"
+    end
+
+    if entry.source.name == "lab.quick_data" then
+      vim_item.kind = lvim.icons.misc.CircuitBoard
+      vim_item.kind_hl_group = "CmpItemKindConstant"
+    end
+
+    vim.api.nvim_set_hl(0, "CmpItemKindEmoji", { fg = "#FDE030" })
+    if entry.source.name == "emoji" then
+      vim_item.kind = lvim.icons.misc.Smiley
+      vim_item.kind_hl_group = "CmpItemKindEmoji"
+    end
+  end
+  vim_item.menu = lvim.builtin.cmp.formatting.source_names[entry.source.name] .. " " .. original_kind
+  vim_item.dup = lvim.builtin.cmp.formatting.duplicates[entry.source.name]
+      or lvim.builtin.cmp.formatting.duplicates_default
+  return vim_item
+end
+
 lvim.keys.normal_mode['<leader>q'] = false
 -- add your own keymapping
 -- lvim.keys.insert_mode["<C-l>"] = "<Esc>ea"
@@ -74,6 +120,27 @@ lvim.keys.normal_mode["<leader><Tab>"] = "<C-^>"
 lvim.keys.normal_mode["]g"] = "<cmd>lua require 'gitsigns'.next_hunk()<cr>"
 lvim.keys.normal_mode["[g"] = "<cmd>lua require 'gitsigns'.prev_hunk()<cr>"
 lvim.keys.normal_mode["gh"] = "<cmd>lua require 'gitsigns'.preview_hunk()<cr>"
+
+-- buffer_mappings
+lvim.lsp.buffer_mappings.normal_mode["gd"] = { "<cmd>Telescope lsp_definitions<cr>", "Goo to Definiton" }
+lvim.lsp.buffer_mappings.normal_mode["gr"] = { "<cmd>Telescope lsp_references<cr>", "Goo to References" }
+lvim.lsp.buffer_mappings.normal_mode["gI"] = { "<cmd>lua require'telescope.builtin'.lsp_implementations()<cr>",
+  "Go to Implementations" }
+lvim.lsp.buffer_mappings.normal_mode["<leader>osS"] = { "<cmd>lua require'telescope.builtin'.lsp_dynamic_workspace_symbols()<cr>",
+  "Dynamic Workspace Symbols" }
+lvim.lsp.buffer_mappings.normal_mode["<leader>oss"] = { "<cmd>lua require'telescope.builtin'.lsp_workspace_symbols()<cr>",
+  "Workspace Symbols" }
+lvim.lsp.buffer_mappings.normal_mode["<leader>osd"] = { "<cmd>lua require'telescope.builtin'.lsp_workspace_symbols()<cr>",
+  "Document Symbols" }
+lvim.lsp.buffer_mappings.normal_mode["<leader>ot"] = { "<cmd>lua require'telescope.builtin'.lsp_type_definitions()<cr>",
+  "Type Definiton" }
+
+lvim.lsp.buffer_mappings.normal_mode["gCi"] = { "<cmd>lua require'telescope.builtin'.lsp_incoming_calls()<cr>",
+  "Lsp Incoming Calls" }
+lvim.lsp.buffer_mappings.normal_mode["gCo"] = { "<cmd>lua require'telescope.builtin'.lsp_outgoing_calls()<cr>",
+  "Lsp Outgoing calls" }
+lvim.lsp.buffer_mappings.normal_mode["<leader>fg"] = { "<cmd>Telescope git_status<cr>", "Git Status" }
+
 
 
 -- harpoon
@@ -122,23 +189,39 @@ vim.cmd("nnoremap gy <cmd>lua require('goto-preview').goto_preview_definition()<
 vim.cmd("nnoremap gY <gcmd>lua require('goto-preview').goto_preview_implementation()<CR>")
 vim.cmd("nnoremap gP <cmd>lua require('goto-preview').close_all_win()<CR>")
 
-vim.keymap.set('n', '<A-h>', require('smart-splits').resize_left)
-vim.keymap.set('n', '<A-j>', require('smart-splits').resize_down)
-vim.keymap.set('n', '<A-k>', require('smart-splits').resize_up)
-vim.keymap.set('n', '<A-l>', require('smart-splits').resize_right)
+-- vim.keymap.set('n', '<A-h>', require('smart-splits').resize_left)
+-- vim.keymap.set('n', '<A-j>', require('smart-splits').resize_down)
+-- vim.keymap.set('n', '<A-k>', require('smart-splits').resize_up)
+-- vim.keymap.set('n', '<A-l>', require('smart-splits').resize_right)
 -- moving between splits
 -- vim.keymap.set('n', '<C-h>', require('smart-splits').move_cursor_left)
 -- vim.keymap.set('n', '<C-j>', require('smart-splits').move_cursor_down)
 -- vim.keymap.set('n', '<C-k>', require('smart-splits').move_cursor_up)
 -- vim.keymap.set('n', '<C-l>', require('smart-splits').move_cursor_right)
 -- unmap a default keymapping
-vim.keymap.del("n", "<C-q>")
+-- vim.keymap.del("n", "<C-q>")
 -- vim.keymap.del("n", "K")
 -- vim.keymap.del("n", "<leader>w")
 -- override a default keymapping
 
 -- Change Telescope navigation to use j and k for navigation and n and p for history in both input and normal mode.
 -- we use protected-mode (pcall) just in case the plugin wasn't loaded yet.
+
+local hasPackageInfo, pi = pcall(require, "package-info")
+if hasPackageInfo then
+  -- Show dependency versions
+  vim.keymap.set("n", "<leader>pps", pi.show, { silent = true, noremap = true })
+  -- Hide dependency versions
+  vim.keymap.set("n", "<leader>ppc", pi.hide, { silent = true, noremap = true })
+  -- Update dependency on the line
+  vim.keymap.set("n", "<leader>ppu", pi.update, { silent = true, noremap = true })
+  -- Delete dependency on the line
+  vim.keymap.set("n", "<leader>ppd", pi.delete, { silent = true, noremap = true })
+  -- Install a new dependency
+  vim.keymap.set("n", "<leader>ppi", pi.install, { silent = true, noremap = true })
+  -- Install a different dependency version
+  vim.keymap.set("n", "<leader>ppp", pi.change_version, { silent = true, noremap = true })
+end
 
 local _, actions = pcall(require, "telescope.actions")
 lvim.builtin.telescope.defaults.mappings = {
@@ -158,16 +241,71 @@ lvim.builtin.telescope.defaults.mappings = {
   },
 }
 
+lvim.builtin.telescope.pickers.lsp_references = {
+  show_line = false
+}
+
 lvim.builtin.which_key.setup.plugins.presets.g = false
 -- lvim.builtin.which_key.setup.plugins.presets.nav = false
 lvim.builtin.alpha.active = true
 lvim.builtin.alpha.mode = "dashboard"
-lvim.builtin.notify.active = true
+-- lvim.builtin.notify.active = true
+-- lvim.builtin.notify.opts.top_down = false
+-- lvim.builtin.notify.opts.timeout = 2000
+-- lvim.builtin.notify.opts.stages = 'fade_in_slide_out'
 lvim.builtin.terminal.active = true
 lvim.builtin.dap.active = true
+local dap_ok, dap = pcall(require, "dap")
+if dap_ok then
+  dap.adapters.node2 = {
+    type = 'executable',
+    command = 'node',
+    args = { os.getenv('HOME') .. '/dev/microsoft/vscode-node-debug2/out/src/nodeDebug.js' },
+  }
+  dap.configurations.typescript = {
+    {
+      name = 'Launch',
+      type = 'node2',
+      request = 'launch',
+      program = '${file}',
+      cwd = vim.fn.getcwd(),
+      sourceMaps = true,
+      protocol = 'inspector',
+      console = 'integratedTerminal',
+      outDir = nil,
+    },
+    {
+      -- For this to work you need to make sure the node process is started with the `--inspect` flag.
+      name = 'Attach to process',
+      type = 'node2',
+      request = 'attach',
+      processId = require 'dap.utils'.pick_process,
+    },
+    {
+      name = "Debug Web",
+      type = "chrome",
+      request = "launch",
+      url = "http://localhost:4200",
+      webRoot = "${workspaceFolder}",
+      sourceMapPathOverrides = {
+        ["webpack=//_N_E/*"] = "${webRoot}/apps/web/*",
+        ["webpack=//_N_E/libs/*"] = "${webRoot}/libs/*",
+        ["webpack=//_N_E/node_modules/*"] = "${webRoot}/node_modules/*"
+      }
+    },
+    {
+      type = "node",
+      request = "attach",
+      name = "Attach NestJS",
+      port = 9229,
+      restart = true,
+    },
+  }
+end
+
 lvim.builtin.terminal.direction = 'horizontal'
+lvim.builtin.terminal.execs["lazygit"] = nil
 lvim.builtin.telescope_fzy = true
-lvim.builtin.telescope_fzf = true
 lvim.builtin.telescope.defaults.layout_strategy = 'vertical'
 lvim.builtin.telescope.defaults.sorting_strategy = 'descending'
 lvim.builtin.telescope.defaults.layout_config.vertical = {
@@ -180,6 +318,7 @@ lvim.builtin.telescope.defaults.layout_config.vertical = {
 lvim.builtin.trouble = true
 lvim.use_icons = true
 lvim.builtin.intend_line = true
+
 lvim.builtin.nvimtree.setup.view.side = "left"
 lvim.builtin.nvimtree.setup.view.mappings.list = {
   { key = { "l", "<CR>", "o" }, action = "edit", mode = "n" },
@@ -188,7 +327,9 @@ lvim.builtin.nvimtree.setup.view.mappings.list = {
   { key = "C", action = "cd" },
   { key = "<leader>]", cb = "<C-w><C-p>" },
 }
--- lvim.builtin.nvimtree.show_icons.git = true
+lvim.builtin.nvimtree.setup.disable_netrw = false
+lvim.builtin.nvimtree.setup.hijack_netrw = false
+
 lvim.builtin.telescope.on_config_done = function(telescope)
   pcall(telescope.load_extension, "neoclip")
   pcall(telescope.load_extension, "frecency")
@@ -199,9 +340,10 @@ lvim.builtin.telescope.on_config_done = function(telescope)
 end
 
 lvim.builtin.lualine.options.globalstatus = true
--- local _, navic = pcall(require, "nvim-navic")
+-- lvim.builtin.lualine.sections.lualine_z = { 'location', { 'lsp_progress' } }
+-- local _, package_info = pcall(require, "package-info")
 -- lvim.builtin.lualine.sections.lualine_c = {
---   { navic.get_location, cond = navic.is_available },
+--   { package_info.get_status },
 -- }
 -- if you don't want all the parsers change this to a table of the ones you want
 lvim.builtin.treesitter.ensure_installed = {
@@ -228,8 +370,8 @@ lvim.builtin.treesitter.highlight.enabled = true
 
 -- ---@usage disable automatic installation of servers
 -- lvim.lsp.automatic_servers_installation = false
-lvim.lsp.peek.max_height = 115
-lvim.lsp.peek.max_width = 85
+-- lvim.lsp.peek.max_height = 115
+-- lvim.lsp.peek.max_width = 85
 -- vim.list_extend(lvim.lsp.automatic_configuration.skipped_servers, { "pyright" })
 -- local opts = {} -- check the lspconfig documentation for a list of all possible options
 -- require("lvim.lsp.manager").setup("pyright", opts)
@@ -239,66 +381,102 @@ lvim.lsp.peek.max_width = 85
 -- end, lvim.lsp.automatic_configuration.skipped_servers)
 
 -- -- you can set a custom on_attach function that will be used for all the language servers
-local lvimLspUtils = require('lvim.lsp.utils')
-lvim.lsp.on_attach_callback = function(client, bufnr)
-  if client.name == 'tsserver' then
-    print('DEBUGPRINT[2]: config.lua:240: bufnr=' .. vim.inspect(bufnr))
-    vim.keymap.set("n", "<leader>oo", function()
-      local ts = require("typescript").actions
-      ts.removeUnused({ sync = true })
-      lvimLspUtils.format({ sync = true })
-      vim.api.nvim_create_autocmd("DiagnosticChanged", {
-        buffer = bufnr,
-        callback = function()
-          -- send another request once the server has flushed pending diagnostics
-          ts.addMissingImports({ sync = true })
-        end,
-        once = true,
-      })
-    end)
+local hasLvimLspUtils, lvimLspUtils = pcall(require, 'lvim.lsp.utils')
+if hasLvimLspUtils then
+  lvim.lsp.on_attach_callback = function(client, bufnr)
+    if client.name == 'tsserver' then
+      vim.keymap.set("n", "<leader>oo", function()
+        local ts = require("typescript").actions
+        ts.removeUnused({ sync = true })
+        lvimLspUtils.format({ sync = true })
+        vim.api.nvim_create_autocmd("DiagnosticChanged", {
+          buffer = bufnr,
+          callback = function()
+            -- send another request once the server has flushed pending diagnostics
+            ts.addMissingImports({ sync = true })
+          end,
+          once = true,
+        })
+      end, {})
 
+    end
+    -- local function buf_set_option(...)
+    --   vim.api.nvim_buf_set_option(bufnr, ...)
+    -- end
+    -- --Enable completion triggered by <c-x><c-o>
+    -- navic.attach(client, bufnr)
   end
-  -- local function buf_set_option(...)
-  --   vim.api.nvim_buf_set_option(bufnr, ...)
-  -- end
-  -- --Enable completion triggered by <c-x><c-o>
-  -- navic.attach(client, bufnr)
 end
 
 -- -- set a formatter, this will override the language server formatting capabilities (if it exists)
--- local formatters = require "lvim.lsp.null-ls.formatters"
--- formatters.setup {
---   { command = "black", filetypes = { "python" } },
---   { command = "isort", filetypes = { "python" } },
---   {
---     command = "prettier",
---     ---@usage arguments to pass to the formatter
---     -- these cannot contain whitespaces, options such as `--line-width 80` become either `{'--line-width', '80'}` or `{'--line-width=80'}`
---     extra_args = { "--print-with", "100" },
---     ---@usage specify which filetypes to enable. By default a providers will attach to all the filetypes it supports.
---     filetypes = { "typescript", "typescriptreact" },
---   },
--- }
+local hasFormatters, formatters = pcall(require, "lvim.lsp.null-ls.formatters")
+if hasFormatters then
+  formatters.setup {
+    --   { command = "black", filetypes = { "python" } },
+    --   { command = "isort", filetypes = { "python" } },
+    {
+      command = "prettier",
+      ---@usage arguments to pass to the formatter
+      -- these cannot contain whitespaces, options such as `--line-width 80` become either `{'--line-width', '80'}` or `{'--line-width=80'}`
+      extra_args = { "--print-with", "100" },
+      ---@usage specify which filetypes to enable. By default a providers will attach to all the filetypes it supports.
+      filetypes = { "typescript", "typescriptreact" },
+    },
+  }
+end
 
 -- -- set additional linters
--- local linters = require "lvim.lsp.null-ls.linters"
--- linters.setup {
---   { command = "flake8", filetypes = { "python" } },
---   {
---     command = "shellcheck",
---     ---@usage arguments to pass to the formatter
---     -- these cannot contain whitespaces, options such as `--line-width 80` become either `{'--line-width', '80'}` or `{'--line-width=80'}`
---     extra_args = { "--severity", "warning" },
---   },
---   {
---     command = "codespell",
---     ---@usage specify which filetypes to enable. By default a providers will attach to all the filetypes it supports.
---     filetypes = { "javascript", "python" },
---   },
--- }
+local hasLinters, linters = pcall(require, "lvim.lsp.null-ls.linters")
+if hasLinters then
+  linters.setup {
+    { command = "eslint", filetypes = { "typescript", "typescriptreact" } },
+    --   { command = "flake8", filetypes = { "python" } },
+    {
+      command = "shellcheck",
+      ---@usage arguments to pass to the formatter
+      -- these cannot contain whitespaces, options such as `--line-width 80` become either `{'--line-width', '80'}` or `{'--line-width=80'}`
+      extra_args = { "--severity", "warning" },
+    },
+    {
+      command = "codespell",
+      ---@usage specify which filetypes to enable. By default a providers will attach to all the filetypes it supports.
+      filetypes = { "javascript", "python" },
+    },
+  }
+end
 
 -- Additional Plugins
 lvim.plugins = {
+  { 'gen740/SmoothCursor.nvim',
+    config = function()
+      require('smoothcursor').setup({
+        fancy = {
+          enable = false,
+          head = { cursor = "▷", texthl = "SmoothCursor", linehl = nil },
+          body = {
+            { cursor = "", texthl = "SmoothCursorRed" },
+            { cursor = "", texthl = "SmoothCursorOrange" },
+            { cursor = "●", texthl = "SmoothCursorYellow" },
+            { cursor = "●", texthl = "SmoothCursorGreen" },
+            { cursor = "•", texthl = "SmoothCursorAqua" },
+            { cursor = ".", texthl = "SmoothCursorBlue" },
+            { cursor = ".", texthl = "SmoothCursorPurple" },
+          },
+          tail = { cursor = nil, texthl = "SmoothCursor" }
+        },
+        timeout = 500,
+      })
+    end
+  },
+  { 'WhoIsSethDaniel/lualine-lsp-progress.nvim' },
+  { 'sam4llis/nvim-tundra' },
+  {
+    "vuki656/package-info.nvim",
+    requires = "MunifTanjim/nui.nvim",
+    configure = function()
+      require('package-info').setup()
+    end
+  },
   {
     "marko-cerovac/material.nvim",
     config = function()
@@ -325,20 +503,6 @@ lvim.plugins = {
           darker = true -- Enable higher contrast text for darker style
         },
       })
-    end
-  },
-  { "olivercederborg/poimandres.nvim",
-    config = function()
-      require('poimandres').setup {
-        -- leave this setup function empty for default config
-        -- or refer to the configuration section
-        -- for configuration options
-        bold_vert_split = true, -- use bold vertical separators
-        dim_nc_background = true, -- dim 'non-current' window backgrounds
-        disable_background = false, -- disable background
-        disable_float_background = false, -- disable background for floats
-        disable_italics = false, -- disable italics
-      }
     end
   },
   { "ThePrimeagen/harpoon",
@@ -393,7 +557,9 @@ lvim.plugins = {
     "glepnir/lspsaga.nvim",
     branch = 'main',
     config = function()
-      require('user.plugins.saga')
+      local saga = require('lspsaga')
+      local configModule = require('user.plugins.saga')
+      saga.init_lsp_saga(configModule.config)
     end
   },
   { "folke/tokyonight.nvim" },
@@ -473,11 +639,6 @@ lvim.plugins = {
               replay = '<c-q>', -- replay a macro
               delete = '<c-d>', -- delete an entry
               custom = {},
-              -- ["<C-j>"] = actions.move_selection_next,
-              -- ["<C-k>"] = actions.move_selection_previous,
-              -- ["<C-n>"] = actions.cycle_history_next,
-              -- -- ["<C-p>"] = actions.cycle_history_prev,
-              -- ["<C-c>"] = actions.close,
             },
             n = {
               select = '<cr>',
@@ -527,7 +688,6 @@ lvim.plugins = {
   -- { "jose-elias-alvarez/nvim-lsp-ts-utils" },
   { "jose-elias-alvarez/typescript.nvim",
     configure = function()
-      print('DEBUGPRINT[4]: config.lua:468 (after configure = function())')
       require('user.plugins.typescript-config')
     end },
   { "ray-x/navigator.lua",
@@ -698,25 +858,25 @@ lvim.plugins = {
       }
     end
   },
-  {
-    "karb94/neoscroll.nvim",
-    event = "WinScrolled",
-    config = function()
-      require('neoscroll').setup({
-        -- All these keys will be mapped to their corresponding default scrolling animation
-        mappings = { '<C-u>', '<C-d>', '<C-b>', '<C-f>',
-          '<C-y>', '<C-e>', 'zt', 'zz', 'zb' },
-        hide_cursor = false, -- Hide cursor while scrolling
-        stop_eof = true, -- Stop at <EOF> when scrolling downwards
-        use_local_scrolloff = false, -- Use the local scope of scrolloff instead of the global scope
-        respect_scrolloff = false, -- Stop scrolling when the cursor reaches the scrolloff margin of the file
-        cursor_scrolls_alone = true, -- The cursor will keep on scrolling even if the window cannot scroll further
-        -- easing_function = nil, -- Default easing function
-        -- pre_hook = nil, -- Function to run before the scrolling animation starts
-        -- post_hook = nil, -- Function to run after the scrolling animation ends
-      })
-    end
-  },
+  -- {
+  --   "karb94/neoscroll.nvim",
+  --   event = "WinScrolled",
+  --   config = function()
+  --     require('neoscroll').setup({
+  --       -- All these keys will be mapped to their corresponding default scrolling animation
+  --       mappings = { '<C-u>', '<C-d>', '<C-b>', '<C-f>',
+  --         '<C-y>', '<C-e>', 'zt', 'zz', 'zb' },
+  --       hide_cursor = false, -- Hide cursor while scrolling
+  --       stop_eof = true, -- Stop at <EOF> when scrolling downwards
+  --       use_local_scrolloff = false, -- Use the local scope of scrolloff instead of the global scope
+  --       respect_scrolloff = false, -- Stop scrolling when the cursor reaches the scrolloff margin of the file
+  --       cursor_scrolls_alone = true, -- The cursor will keep on scrolling even if the window cannot scroll further
+  --       -- easing_function = nil, -- Default easing function
+  --       -- pre_hook = nil, -- Function to run before the scrolling animation starts
+  --       -- post_hook = nil, -- Function to run after the scrolling animation ends
+  --     })
+  --   end
+  -- },
   {
     "folke/todo-comments.nvim",
     event = "BufRead",
@@ -779,7 +939,7 @@ lvim.plugins = {
       variablebuiltinStyle = { italic = true },
       specialReturn = true, -- special highlight for the return keyword
       specialException = true, -- special highlight for exception handling keywords
-      transparent = false, -- do not set background color
+      transparent = true, -- do not set background color
       globalStatus = true, -- adjust window separators highlight for laststatus=3
       terminalColors = true, -- define vim.g.terminal_color_{0,17}
       colors = {},
@@ -815,6 +975,82 @@ lvim.plugins = {
     end
   },
   { "nvim-treesitter/nvim-treesitter-context" },
+  { "nvim-treesitter/nvim-treesitter-textobjects",
+    config = function()
+      require('nvim-treesitter.configs').setup({
+        textobjects = {
+          lsp_interop = {
+            enable = true,
+            border = 'none',
+            peek_definition_code = {
+              ["<leader>df"] = "@function.outer",
+              ["<leader>dF"] = "@class.outer",
+            },
+          },
+          move = {
+            enable = true,
+            set_jumps = true, -- whether to set jumps in the jumplist
+            goto_next_start = {
+              ["]m"] = "@function.outer",
+              ["]]"] = "@class.outer",
+            },
+            goto_next_end = {
+              ["]M"] = "@function.outer",
+              ["]["] = "@class.outer",
+            },
+            goto_previous_start = {
+              ["[m"] = "@function.outer",
+              ["[["] = "@class.outer",
+            },
+            goto_previous_end = {
+              ["[M"] = "@function.outer",
+              ["[]"] = "@class.outer",
+            },
+          },
+          swap = {
+            enable = true,
+            swap_next = {
+              ["<leader>a"] = "@parameter.inner",
+            },
+            swap_previous = {
+              ["<leader>A"] = "@parameter.inner",
+            },
+          },
+          select = {
+            enable = true,
+
+            -- Automatically jump forward to textobj, similar to targets.vim
+            lookahead = true,
+
+            keymaps = {
+              -- You can use the capture groups defined in textobjects.scm
+              ["af"] = "@function.outer",
+              ["if"] = "@function.inner",
+              ["ac"] = "@class.outer",
+              -- you can optionally set descriptions to the mappings (used in the desc parameter of nvim_buf_set_keymap
+              ["ic"] = { query = "@class.inner", desc = "Select inner part of a class region" },
+            },
+            -- You can choose the select mode (default is charwise 'v')
+            selection_modes = {
+              ['@parameter.outer'] = 'v', -- charwise
+              ['@function.outer'] = 'V', -- linewise
+              ['@class.outer'] = '<c-v>', -- blockwise
+            },
+            -- If you set this to `true` (default is `false`) then any textobject is
+            -- extended to include preceding xor succeeding whitespace. Succeeding
+            -- whitespace has priority in order to act similarly to eg the built-in
+            -- `ap`.
+            include_surrounding_whitespace = true,
+          },
+        },
+      })
+    end },
+  { "rockyzhang24/arctic.nvim", requires = { "rktjmp/lush.nvim" } },
+  {
+    "windwp/nvim-ts-autotag", config = function()
+      require('nvim-ts-autotag').setup()
+    end
+  },
 }
 
 -- vim.api.nvim_create_autocmd({ "CursorMoved", "BUfWinEnter", "BufFilePost" }, {

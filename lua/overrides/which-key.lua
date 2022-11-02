@@ -115,15 +115,16 @@ lvim.builtin.which_key.mappings["o"] = {
   -- o = { "", "Organize Imports" },
   a = { "", "Import All" },
   l = { "Debug Print" },
-  L = {  "Debug Print (above)" },
-  p = {  "Debug Print (above)" },
+  L = { "Debug Print (above)" },
+  p = { "Debug Print (above)" },
 }
 -- Use which-key to add extra bindings with the leader-key prefix
 lvim.builtin.which_key.mappings["P"] = { "<cmd>Telescope projects<CR>", "Projects" }
 lvim.builtin.which_key.mappings["t"] = {
   name = "+Trouble",
-  r = { "<cmd>Trouble lsp_references<cr>", "References" },
-  t = { "<cmd>TroubleToggle<cr>", "Toggle Trouble" },
+  n = { "<cmd>lua require('notify').dismiss()<cr>", "Notifications dismiss" },
+  r = { "<cmd>Trouble lsp_references<cr>", "references" },
+  t = { "<cmd>TroubleToggle<cr>", "toggle trouble" },
   f = { "<cmd>Trouble lsp_definitions<cr>", "Definitions" },
   d = { "<cmd>Trouble document_diagnostics<cr>", "Diagnostics" },
   q = { "<cmd>Trouble quickfix<cr>", "QuickFix" },

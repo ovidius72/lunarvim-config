@@ -1,8 +1,8 @@
 vim.opt.relativenumber = true
 vim.opt.number = true
--- vim.opt.clipboard = ""
+vim.opt.clipboard = ""
 vim.opt.laststatus = 3
--- vim.cmd [[set fillchars+=diff:╱]]
+vim.cmd [[set fillchars+=diff:╱]]
 -- vim.cmd [[
 -- imap _cll console.log();<Esc>==F(a
 -- imap _gll console.log();<Esc>==F(a'*****: <Esc>pa', <Esc>a
@@ -87,5 +87,5 @@ inoremap <c-w> <c-g>u<c-w>
 nnoremap <Leader>xr :%s/\<<C-r><C-w>\>//g<Left><Left>
 nnoremap <leader>hH :let @/='\<<C-R>=expand("<cword>")<CR>\>'<CR>:set hls!<CR>
 nmap <leader>gd :DiffviewFileHistory %<cr>
-nmap <leader>gC :DiffviewClose<cr>
+nmap <leader>gx :DiffviewClose<cr>
 ]]
