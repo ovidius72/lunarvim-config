@@ -8,19 +8,15 @@ lvim.builtin.which_key.mappings["]"] = { "<cmd>:NvimTreeFindFile<cr>", "Focus Ex
 lvim.builtin.which_key.mappings["<Tab>"] = { "<C-^>", "Alternate Buffer" }
 lvim.builtin.which_key.mappings["u"] = { "<cmd>lua vim.diagnostic.open_float()<cr>", "Show Diagnostic Info" }
 lvim.builtin.which_key.mappings["ss"] = { "<cmd>:wa<cr>", "Save all buffers" }
-lvim.builtin.which_key.mappings["sa"] = { "<cmd>Telescope live_grep<cr>", "Grep Text" }
+lvim.builtin.which_key.mappings["sa"] = { "<cmd>Telescope grep_string search=<cr>", "Fuzzy Find In File" }
+lvim.builtin.which_key.mappings["sg"] = { "<cmd>Telescope live_grep<cr>", "Live Grep Text" }
 lvim.builtin.which_key.mappings["sw"] = { "<cmd>Telescope grep_string<cr>", "Find word under caret" }
+lvim.builtin.which_key.mappings["sG"] = { "<cmd>require'telescope.builtin'.grep_string{ shorten_path = true, word_match = '-w', only_sort_text = true, search = '' } <cr>",
+  "Find word under caret" }
 lvim.builtin.which_key.mappings["sr"] = { "<cmd>lua require('spectre').open_file_search()<cr>", "Find and replace" }
---  grep_string<cr>", "Find Word Under Caret" }
 
-lvim.builtin.which_key.mappings["w"] = {
-  name = 'Window',
-  d = { "<C-w>q", 'Close' },
-  v = { "<C-w>v", "Split Vertical" },
-  s = { "<C-w>s", "Split Horizontal" },
-}
 lvim.builtin.which_key.mappings["b"] = {
-  name = 'Buffers',
+  name = 'BUFFERS',
   e = { "<cmd>source %<CR>", "Source Buffer" },
   k = { "<cmd>BufferKill<CR>", "Kill" },
   S = { ":w<cr>", "Save Current " },
@@ -44,7 +40,7 @@ lvim.builtin.which_key.mappings["b"] = {
   },
 }
 lvim.builtin.which_key.mappings["c"] = {
-  name = "Code+Lsp",
+  name = "CODE+LSP",
   a = { "<cmd>lua vim.lsp.buf.code_action()<cr>", "Code Action" },
   o = { "<cmd>lua vim.lsp.buf.code_action()<cr>", "Code Action" },
   d = { "<cmd>Telescope diagnostics bufnr=0 theme=get_ivy<cr>", "Buffer Diagnostics" },
@@ -88,6 +84,11 @@ lvim.builtin.which_key.mappings["q"] = {
 lvim.builtin.which_key.mappings["f"] = {
   name = 'Files',
   f = { require("lvim.core.telescope.custom-finders").find_project_files, "Find File" },
+  e = {
+    name = "+CONFIG",
+    f = { "<cmd>lua require('telescope.builtin').git_files({ prompt_title = '<Lvim Files>', cwd = '~/.config/lvim' })<cr>",
+      "Config files" }
+  },
   r = { "<cmd>Telescope oldfiles<cr>", "Open Recent File" },
   s = { ":wa<cr>", "Save All" },
   S = { ":w<cr>", "Save Current " },
@@ -95,9 +96,10 @@ lvim.builtin.which_key.mappings["f"] = {
   w = { "<cmd>lua require('spectre').open_visual({ select_word = true })<cr>", "Specte" },
 }
 lvim.builtin.which_key.mappings["h"] = {
-  name = 'hop',
+  name = '+HOP',
 }
 lvim.builtin.which_key.mappings["n"] = {
+  name = "+DEBUG",
   a = { "<cmd>lua require('neotest').run.attach()<cr>", "Attach" },
   f = { "<cmd>lua require('neotest').run.run(vim.fn.expand('%'))<cr>", "Run File" },
   F = { "<cmd>lua require('neotest').run.run({vim.fn.expand('%'), strategy = 'dap'})<cr>", "Debug File" },
@@ -112,14 +114,24 @@ lvim.builtin.which_key.mappings["n"] = {
 lvim.builtin.which_key.mappings["o"] = {
   name = "+Custom",
   f = { require("lvim.lsp.utils").format, "Format" },
-  -- o = { "", "Organize Imports" },
-  a = { "", "Import All" },
+  F = { "<cmd>FormatModifications", "Format Modifications" },
+  o = { "Organize Imports" },
+  a = { "Import All" },
   l = { "Debug Print" },
   L = { "Debug Print (above)" },
   p = { "Debug Print (above)" },
 }
 -- Use which-key to add extra bindings with the leader-key prefix
 lvim.builtin.which_key.mappings["P"] = { "<cmd>Telescope projects<CR>", "Projects" }
+lvim.builtin.which_key.mappings["j"] = {
+  name = "+jump/join",
+  j = { "<cmd>:TSJJoin<CR>", "TSJJoin" },
+  s = { "<cmd>:TSJSplit<CR>", "TSJSplit" },
+  t = { "<cmd>:TSJToggle<CR>", "TSJToggle" },
+}
+lvim.builtin.which_key.mappings["k"] = {
+  name = "+LSP SAGA"
+}
 lvim.builtin.which_key.mappings["t"] = {
   name = "+Trouble",
   n = { "<cmd>lua require('notify').dismiss()<cr>", "Notifications dismiss" },
@@ -130,6 +142,15 @@ lvim.builtin.which_key.mappings["t"] = {
   q = { "<cmd>Trouble quickfix<cr>", "QuickFix" },
   l = { "<cmd>Trouble loclist<cr>", "LocationList" },
   w = { "<cmd>Trouble workspace_diagnostics<cr>", "Wordspace Diagnostics" },
+}
+lvim.builtin.which_key.mappings["v"] = {
+  name = "+VISUAL"
+}
+lvim.builtin.which_key.mappings["w"] = {
+  name = 'WINDOW',
+  d = { "<C-w>q", 'Close' },
+  v = { "<C-w>v", "Split Vertical" },
+  s = { "<C-w>s", "Split Horizontal" },
 }
 
 -- local _, wk = pcall(require, "which-key")

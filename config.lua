@@ -8,10 +8,12 @@ an executable
 ]]
 -- THESE ARE EXAMPLE CONFIGS FEEL FREE TO CHANGE TO WHATEVER YOU WANT
 
+local opts = { silent = true, remap = false }
+
 -- general
-lvim.colorscheme = "catppuccin-mocha"
+lvim.colorscheme = "github_dark_default"
 -- lvim.colorscheme = "arctic"
-vim.g.material_style = 'deep ocean'
+-- vim.g.material_style = 'lighter'
 
 lvim.log.level = "warn"
 lvim.format_on_save = true
@@ -26,11 +28,37 @@ vim.g.oxocarbon_lua_keep_terminal = true
 vim.g.oxocarbon_lua_alternative_telescope = true
 
 
+vim.g.qs_lazy_highlight = 1
+
+--- [[lsp_lines]]
+vim.keymap.set(
+  "",
+  "<Leader>U",
+  require("lsp_lines").toggle,
+  { desc = "Toggle lsp_lines" }
+)
+---
+--- [[ GLANCE ]]
+vim.keymap.set('n', 'gaa', '<CMD>Glance definitions<CR>')
+vim.keymap.set('n', 'gar', '<CMD>Glance references<CR>')
+vim.keymap.set('n', 'gad', '<CMD>Glance type_definitions<CR>')
+vim.keymap.set('n', 'gai', '<CMD>Glance implementations<CR>')
+-----
+
+
+--- [[ easy actions ]]
+-- trigger easy-action.
+vim.keymap.set("n", "<leader>ee", "<cmd>BasicEasyAction<cr>", opts)
+-- To insert something and jump back after you leave the insert mode
+vim.keymap.set("n", "<leader>ei", function()
+  require("easy-action").base_easy_action("i", nil, "InsertLeave")
+end, opts)
+------
+
 -- Rnvimr
 lvim.keys.normal_mode["<A-o>"] = "<cmd>RnvimrToggle<cr>"
 
 -- PickColor
-local opts = { noremap = true, silent = true }
 vim.keymap.set("n", "<leader>tp", "<cmd>PickColor<cr>", opts)
 vim.keymap.set("i", "<C-;>", "<cmd>PickColorInsert<cr>", opts)
 
@@ -189,6 +217,12 @@ vim.cmd("nnoremap gy <cmd>lua require('goto-preview').goto_preview_definition()<
 vim.cmd("nnoremap gY <gcmd>lua require('goto-preview').goto_preview_implementation()<CR>")
 vim.cmd("nnoremap gP <cmd>lua require('goto-preview').close_all_win()<CR>")
 
+
+
+-- ¬l
+-- ˙h
+-- ˚k
+-- ∆j
 -- vim.keymap.set('n', '<A-h>', require('smart-splits').resize_left)
 -- vim.keymap.set('n', '<A-j>', require('smart-splits').resize_down)
 -- vim.keymap.set('n', '<A-k>', require('smart-splits').resize_up)
@@ -382,6 +416,7 @@ lvim.builtin.treesitter.highlight.enabled = true
 
 -- -- you can set a custom on_attach function that will be used for all the language servers
 local hasLvimLspUtils, lvimLspUtils = pcall(require, 'lvim.lsp.utils')
+local hasLspFormatModification, lspFormatModification = pcall(require, 'lsp-format-modifications')
 if hasLvimLspUtils then
   lvim.lsp.on_attach_callback = function(client, bufnr)
     if client.name == 'tsserver' then
@@ -398,7 +433,9 @@ if hasLvimLspUtils then
           once = true,
         })
       end, {})
-
+    end
+    if hasLspFormatModification then
+      lspFormatModification.attach(client, bufnr, { format_on_save = false })
     end
     -- local function buf_set_option(...)
     --   vim.api.nvim_buf_set_option(bufnr, ...)
@@ -415,12 +452,27 @@ if hasFormatters then
     --   { command = "black", filetypes = { "python" } },
     --   { command = "isort", filetypes = { "python" } },
     {
+      command = 'eslint_d',
+      filetypes = { "typescript", "typescriptreact", "javascript", "javascriptreact" }
+    },
+    {
       command = "prettier",
       ---@usage arguments to pass to the formatter
       -- these cannot contain whitespaces, options such as `--line-width 80` become either `{'--line-width', '80'}` or `{'--line-width=80'}`
       extra_args = { "--print-with", "100" },
       ---@usage specify which filetypes to enable. By default a providers will attach to all the filetypes it supports.
-      filetypes = { "typescript", "typescriptreact" },
+      filetypes = { "typescript", "typescriptreact", "javascript", "javascriptreact" },
+    },
+  }
+end
+
+-- code actions
+local hasActions, code_actions = pcall(require, "lvim.lsp.null-ls.code_actions")
+if hasActions then
+  code_actions.setup {
+    {
+      exe = "eslint_d",
+      filetypes = { "typescript", "typescriptreact", "javascript", "javascriptreact", "vue" },
     },
   }
 end
@@ -429,7 +481,8 @@ end
 local hasLinters, linters = pcall(require, "lvim.lsp.null-ls.linters")
 if hasLinters then
   linters.setup {
-    { command = "eslint", filetypes = { "typescript", "typescriptreact" } },
+    { command = "stylelint", filetypes = { "css", "scss", "less", "sass", "scss" }, args = { "--fix", "--stdin" } },
+    { command = "eslint_d", filetypes = { "typescript", "typescriptreact", "javascript", "javascriptreact" } },
     --   { command = "flake8", filetypes = { "python" } },
     {
       command = "shellcheck",
@@ -440,7 +493,7 @@ if hasLinters then
     {
       command = "codespell",
       ---@usage specify which filetypes to enable. By default a providers will attach to all the filetypes it supports.
-      filetypes = { "javascript", "python" },
+      filetypes = { "typescript", "typescriptreact", "javascript", "javascriptreact", "python" },
     },
   }
 end
@@ -481,7 +534,7 @@ lvim.plugins = {
     "marko-cerovac/material.nvim",
     config = function()
       require('material').setup({
-        lualine_style = "stealth",
+        lualine_style = "lighter", -- oceanic | deep ocean | palenight | lighter | darker
         contrast = {
           sidebars = true, -- Enable contrast for sidebar-like windows ( for example Nvim-Tree )
           floating_windows = false, -- Enable contrast for floating windows
@@ -536,14 +589,18 @@ lvim.plugins = {
       })
     end
   },
-  -- {
-  --   "projekt0n/github-nvim-theme",
-  --   config = function()
-  --     require("github-theme").setup({
-  --       theme_style = "dark",
-  --     })
-  --   end
-  -- },
+  {
+    "projekt0n/github-nvim-theme",
+    config = function()
+      require("github-theme").setup({
+        theme_style = "dark_default",
+      })
+    end
+  },
+  { 'rmehri01/onenord.nvim' },
+  { 'wuelnerdotexe/vim-enfocado' },
+  { "NTBBloodbath/doom-one.nvim" },
+  { "challenger-deep-theme/vim" },
   {
     "kevinhwang91/rnvimr",
     cmd = "RnvimrToggle",
@@ -562,7 +619,7 @@ lvim.plugins = {
       saga.init_lsp_saga(configModule.config)
     end
   },
-  { "folke/tokyonight.nvim" },
+  -- { "folke/tokyonight.nvim" },
   { "mg979/vim-visual-multi" },
   {
     "folke/trouble.nvim",
@@ -622,7 +679,7 @@ lvim.plugins = {
       -- you'll need at least one of these
       { 'kkharji/sqlite.lua', module = 'sqlite' },
       { 'nvim-telescope/telescope.nvim' },
-      -- {'ibhagwan/fzf-lua'},
+      { 'ibhagwan/fzf-lua' },
     },
     config = function()
       require('neoclip').setup({
@@ -814,50 +871,50 @@ lvim.plugins = {
   -- { "zbirenbaum/copilot-cmp",
   --   after = { "copilot.lua", "nvim-cmp" },
   -- },
-  {
-    "lukas-reineke/indent-blankline.nvim",
-    event = "BufRead",
-    setup = function()
-      vim.g.indentLine_enabled = 1
-      vim.g.indent_blankline_char = "▏"
-      vim.g.indent_blankline_filetype_exclude = { "help", "terminal", "dashboard" }
-      vim.g.indent_blankline_buftype_exclude = { "terminal" }
-      vim.g.indent_blankline_show_trailing_blankline_indent = false
-      vim.g.indent_blankline_show_first_indent_level = false
-      vim.g.indent_blankline_show_context = true
-      vim.g.indent_blankline_show_current_context = true
-      vim.g.indent_blankline_context_patterns = {
-        "typescriptStatementKeyword",
-        "typescriptParenExp",
-        "typescriptBlock",
-        "tsTag",
-        "typeDefinition",
-        "tsxElement",
-        "tsxTagName",
-        "func_literal",
-        "try",
-        "php",
-        "except",
-        "argument_list",
-        "dictionary",
-        "class",
-        "function",
-        "method",
-        "^if",
-        "^else",
-        "^return",
-        "tag",
-        "jsx",
-        "^while",
-        "^for",
-        "^object",
-        "^table",
-        "block",
-        "arguments",
-        "luaTable"
-      }
-    end
-  },
+  -- {
+  --   "lukas-reineke/indent-blankline.nvim",
+  --   event = "BufRead",
+  --   setup = function()
+  --     vim.g.indentLine_enabled = 1
+  --     vim.g.indent_blankline_char = "▏"
+  --     vim.g.indent_blankline_filetype_exclude = { "help", "terminal", "dashboard" }
+  --     vim.g.indent_blankline_buftype_exclude = { "terminal" }
+  --     vim.g.indent_blankline_show_trailing_blankline_indent = false
+  --     vim.g.indent_blankline_show_first_indent_level = false
+  --     vim.g.indent_blankline_show_context = true
+  --     vim.g.indent_blankline_show_current_context = true
+  --     vim.g.indent_blankline_context_patterns = {
+  --       "typescriptStatementKeyword",
+  --       "typescriptParenExp",
+  --       "typescriptBlock",
+  --       "tsTag",
+  --       "typeDefinition",
+  --       "tsxElement",
+  --       "tsxTagName",
+  --       "func_literal",
+  --       "try",
+  --       "php",
+  --       "except",
+  --       "argument_list",
+  --       "dictionary",
+  --       "class",
+  --       "function",
+  --       "method",
+  --       "^if",
+  --       "^else",
+  --       "^return",
+  --       "tag",
+  --       "jsx",
+  --       "^while",
+  --       "^for",
+  --       "^object",
+  --       "^table",
+  --       "block",
+  --       "arguments",
+  --       "luaTable"
+  --     }
+  --   end
+  -- },
   -- {
   --   "karb94/neoscroll.nvim",
   --   event = "WinScrolled",
@@ -918,7 +975,9 @@ lvim.plugins = {
     config = function()
       require('debugprint').setup({
         create_keymaps = true,
-        move_to_debugline = true,
+        move_to_debugline = false,
+        display_counter = false,
+        print_tag = '****'
       })
     end
   },
@@ -968,11 +1027,61 @@ lvim.plugins = {
       require('overseer').setup()
     end
   },
+  -- {
+  --   "fgheng/winbar.nvim",
+  --   config = function()
+  --     require('winbar').setup({})
+  --   end
+  -- },
   {
-    "fgheng/winbar.nvim",
+    "utilyre/barbecue.nvim",
+    requires = {
+      "neovim/nvim-lspconfig",
+      "smiteshp/nvim-navic",
+      "kyazdani42/nvim-web-devicons", -- optional
+    },
     config = function()
-      require('winbar').setup({})
+      require("barbecue").setup()
+    end,
+  },
+  -- {
+  --   "gbprod/yanky.nvim",
+  --   config = function()
+  --     require("yanky").setup({
+  --       -- your configuration comes here
+  --       -- or leave it empty to use the default settings
+  --       -- refer to the configuration section below
+  --     })
+  --   end
+  -- },
+  {
+    'Wansmer/treesj',
+    requires = { 'nvim-treesitter' },
+    config = function()
+      require('treesj').setup({
+        use_default_keymaps = false,
+      })
+    end,
+  },
+  {
+    'Weissle/easy-action',
+    requires = {
+      {
+        "kevinhwang91/promise-async",
+        module = { "async" },
+      }
+    },
+    config = function()
+      require('easy-action').setup({})
     end
+  },
+  {
+    "dnlhc/glance.nvim",
+    config = function()
+      require('glance').setup({
+        -- your configuration
+      })
+    end,
   },
   { "nvim-treesitter/nvim-treesitter-context" },
   { "nvim-treesitter/nvim-treesitter-textobjects",
@@ -1047,50 +1156,49 @@ lvim.plugins = {
     end },
   { "rockyzhang24/arctic.nvim", requires = { "rktjmp/lush.nvim" } },
   {
+    "unblevable/quick-scope",
+    config = function()
+      -- [[quick-scope]]
+      vim.g.qs_lazy_highlight = 1
+      vim.cmd [[ let g:qs_lazy_highlight = 1 ]]
+    end
+
+  },
+  {
     "windwp/nvim-ts-autotag", config = function()
-      require('nvim-ts-autotag').setup()
+      require('nvim-ts-autotag').setup({ virtual_text = false })
     end
   },
+  {
+    "https://git.sr.ht/~whynothugo/lsp_lines.nvim",
+    config = function()
+      require("lsp_lines").setup()
+    end,
+  },
+  { 'joechrisellis/lsp-format-modifications.nvim' },
+  -- {
+  --   'doums/monark.nvim',
+  --   config = function()
+  --     require('monark').setup()
+  --   end
+  -- }
+  -- {
+  --   "folke/noice.nvim",
+  --   config = function()
+  --     require("noice").setup({
+  --       -- add any options here
+  --     })
+  --   end,
+  --   requires = {
+  --     -- if you lazy-load any plugin below, make sure to add proper `module="..."` entries
+  --     "MunifTanjim/nui.nvim",
+  --     -- OPTIONAL:
+  --     --   `nvim-notify` is only needed, if you want to use the notification view.
+  --     --   If not available, we use `mini` as the fallback
+  --     "rcarriga/nvim-notify",
+  --   }
+  -- }
 }
 
--- vim.api.nvim_create_autocmd({ "CursorMoved", "BUfWinEnter", "BufFilePost" }, {
---   callback = function()
---     local winbar_filetype_exclude = {
---       "help",
---       "startify",
---       "dashboard",
---       "packer",
---       "neogitstatus",
---       "NvimTree",
---       "Trouble",
---       "alpha",
---       "lir",
---       "Outline",
---       "spectre_panel",
---     }
---     if vim.tbl_contains(winbar_filetype_exclude, vim.bo.filetype) then
---       vim.opt_local.winbar = nil
---       return
---     end
---     local value = require("user.winbar").gps()
---     if value == nil then
---       value = require("user.winbar").filename()
---     end
---     vim.opt_local.winbar = value
---   end,
--- })
-
--- vim.api.nvim_create_autocmd("BufEnter", {
---   pattern = { "*.json", "*.jsonc" },
---   -- enable wrap mode for json files only
---   command = "setlocal wrap",
--- })
--- vim.api.nvim_create_autocmd("FileType", {
---   pattern = "zsh",
---   callback = function()
---     -- let treesitter use bash highlight for zsh files as well
---     require("nvim-treesitter.highlight").attach(0, "bash")
---   end,
--- })
 require("user")
 require("overrides")
