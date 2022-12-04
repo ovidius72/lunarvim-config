@@ -30,67 +30,70 @@ vim.g.oxocarbon_lua_alternative_telescope = true
 
 vim.g.qs_lazy_highlight = 1
 
---- [[lsp_lines]]
-vim.keymap.set(
-  "",
-  "<Leader>U",
-  require("lsp_lines").toggle,
-  { desc = "Toggle lsp_lines" }
-)
----
 --- [[ GLANCE ]]
-vim.keymap.set('n', 'gaa', '<CMD>Glance definitions<CR>')
-vim.keymap.set('n', 'gar', '<CMD>Glance references<CR>')
-vim.keymap.set('n', 'gad', '<CMD>Glance type_definitions<CR>')
-vim.keymap.set('n', 'gai', '<CMD>Glance implementations<CR>')
+-- vim.keymap.set('n', 'gaa', '<CMD>Glance definitions<CR>')
+-- vim.keymap.set('n', 'gar', '<CMD>Glance references<CR>')
+-- vim.keymap.set('n', 'gad', '<CMD>Glance type_definitions<CR>')
+-- vim.keymap.set('n', 'gai', '<CMD>Glance implementations<CR>')
 -----
 
 
 --- [[ easy actions ]]
 -- trigger easy-action.
-vim.keymap.set("n", "<leader>ee", "<cmd>BasicEasyAction<cr>", opts)
+-- vim.keymap.set("n", "<leader>ee", "<cmd>BasicEasyAction<cr>", opts)
 -- To insert something and jump back after you leave the insert mode
-vim.keymap.set("n", "<leader>ei", function()
-  require("easy-action").base_easy_action("i", nil, "InsertLeave")
-end, opts)
+-- vim.keymap.set("n", "<leader>ei", function()
+--   require("easy-action").base_easy_action("i", nil, "InsertLeave")
+-- end, opts)
 ------
 
 -- Rnvimr
 lvim.keys.normal_mode["<A-o>"] = "<cmd>RnvimrToggle<cr>"
 
 -- PickColor
-vim.keymap.set("n", "<leader>tp", "<cmd>PickColor<cr>", opts)
-vim.keymap.set("i", "<C-;>", "<cmd>PickColorInsert<cr>", opts)
+-- vim.keymap.set("n", "<leader>tp", "<cmd>PickColor<cr>", opts)
+-- vim.keymap.set("i", "<C-;>", "<cmd>PickColorInsert<cr>", opts)
+lvim.keys.insert_mode["<A-i>"] = { "<cmd>PickColorInsert<cr>", { desc = "PickColorInsert" } }
 
+-- vim.keymap.set("n", "<space>op", function()
+--   return require('debugprint').debugprint()
+-- end, {
+--   expr = true,
+-- })
+-- vim.keymap.set("n", "<space>op", function()
+--   return require('debugprint').debugprint({ above = true })
+-- end, {
+--   expr = true,
+-- })
+-- vim.keymap.set("n", "<space>ol", function()
+--   return require('debugprint').debugprint({ variable = true })
+-- end, {
+--   expr = true,
+-- })
+-- vim.keymap.set("n", "<space>oL", function()
+--   return require('debugprint').debugprint({ above = true, variable = true })
+-- end, {
+--   expr = true,
+-- })
 
-vim.keymap.set("n", "<space>op", function()
-  return require('debugprint').debugprint()
-end, {
-  expr = true,
-})
-vim.keymap.set("n", "<space>op", function()
-  return require('debugprint').debugprint({ above = true })
-end, {
-  expr = true,
-})
-vim.keymap.set("n", "<space>ol", function()
-  return require('debugprint').debugprint({ variable = true })
-end, {
-  expr = true,
-})
-vim.keymap.set("n", "<space>oL", function()
-  return require('debugprint').debugprint({ above = true, variable = true })
-end, {
-  expr = true,
-})
-
-lvim.keys.normal_mode['<leader>od'] = "<cmd>:DeleteDebugPrints<cr>"
+-- lvim.keys.normal_mode['<leader>od'] = "<cmd>:DeleteDebugPrints<cr>"
 
 -- to disable icons and use a minimalist setup, uncomment the following
 -- lvim.use_icons = false
 
 -- keymappings [view all the defaults by pressing <leader>Lk]
 lvim.leader = "space"
+
+-- TELESCOPE OVERRIDES
+lvim.builtin.telescope.pickers.live_grep = {
+  only_sort_text = true,
+  theme = "ivy"
+}
+lvim.builtin.telescope.pickers.grep_string = {
+  only_sort_text = true,
+  theme = "ivy"
+}
+---
 
 lvim.builtin.cmp.formatting.kind_icons = require('user.icons').kind
 lvim.builtin.cmp.formatting.format = function(entry, vim_item)
@@ -143,42 +146,37 @@ lvim.keys.normal_mode['<leader>q'] = false
 -- lvim.keys.insert_mode["<C-l>"] = "<Esc>ea"
 -- lvim.keys.insert_mode["<C-y>"] = "<Esc>gea"
 lvim.keys.insert_mode["jj"] = "<Esc>"
-lvim.keys.normal_mode["<leader>wd"] = "<C-w>q"
-lvim.keys.normal_mode["<leader><Tab>"] = "<C-^>"
-lvim.keys.normal_mode["]g"] = "<cmd>lua require 'gitsigns'.next_hunk()<cr>"
-lvim.keys.normal_mode["[g"] = "<cmd>lua require 'gitsigns'.prev_hunk()<cr>"
-lvim.keys.normal_mode["gh"] = "<cmd>lua require 'gitsigns'.preview_hunk()<cr>"
+-- lvim.keys.normal_mode["<leader>wd"] = "<C-w>q"
+-- lvim.keys.normal_mode["<leader><Tab>"] = "<C-^>"
+lvim.keys.normal_mode["]g"] = { "<cmd>lua require 'gitsigns'.next_hunk()<cr>", { desc = "Next Git Hunk" } }
+lvim.keys.normal_mode["[g"] = { "<cmd>lua require 'gitsigns'.prev_hunk()<cr>", { desc = "Prev Git Hunk" } }
+lvim.keys.normal_mode["gh"] = { "<cmd>lua require 'gitsigns'.preview_hunk()<cr>",
+  { desc = "Preview Git Hunk (GitSigns)" } }
 
 -- buffer_mappings
-lvim.lsp.buffer_mappings.normal_mode["gd"] = { "<cmd>Telescope lsp_definitions<cr>", "Goo to Definiton" }
-lvim.lsp.buffer_mappings.normal_mode["gr"] = { "<cmd>Telescope lsp_references<cr>", "Goo to References" }
+lvim.lsp.buffer_mappings.normal_mode["gd"] = { "<cmd>Telescope lsp_definitions<cr>", "Go to Definiton(Telescope)" }
+lvim.lsp.buffer_mappings.normal_mode["gr"] = { "<cmd>Telescope lsp_references<cr>", "Go to References(Telescope)" }
 lvim.lsp.buffer_mappings.normal_mode["gI"] = { "<cmd>lua require'telescope.builtin'.lsp_implementations()<cr>",
-  "Go to Implementations" }
-lvim.lsp.buffer_mappings.normal_mode["<leader>osS"] = { "<cmd>lua require'telescope.builtin'.lsp_dynamic_workspace_symbols()<cr>",
-  "Dynamic Workspace Symbols" }
-lvim.lsp.buffer_mappings.normal_mode["<leader>oss"] = { "<cmd>lua require'telescope.builtin'.lsp_workspace_symbols()<cr>",
-  "Workspace Symbols" }
-lvim.lsp.buffer_mappings.normal_mode["<leader>osd"] = { "<cmd>lua require'telescope.builtin'.lsp_workspace_symbols()<cr>",
-  "Document Symbols" }
-lvim.lsp.buffer_mappings.normal_mode["<leader>ot"] = { "<cmd>lua require'telescope.builtin'.lsp_type_definitions()<cr>",
-  "Type Definiton" }
+  "Go to Implementations(Telescope)" }
+-- lvim.lsp.buffer_mappings.normal_mode["<leader>osS"] = { "<cmd>lua require'telescope.builtin'.lsp_dynamic_workspace_symbols()<cr>",
+--   "Dynamic Workspace Symbols(Telescope)" }
+-- lvim.lsp.buffer_mappings.normal_mode["<leader>oss"] = { "<cmd>lua require'telescope.builtin'.lsp_workspace_symbols()<cr>",
+--   "Workspace Symbols(Telescope)" }
+-- lvim.lsp.buffer_mappings.normal_mode["<leader>osd"] = { "<cmd>lua require'telescope.builtin'.lsp_workspace_symbols()<cr>",
+--   "Document Symbols(Telescope)" }
+-- lvim.lsp.buffer_mappings.normal_mode["<leader>ot"] = { "<cmd>lua require'telescope.builtin'.lsp_type_definitions()<cr>",
+--   "Type Definiton(Telescope)" }
 
-lvim.lsp.buffer_mappings.normal_mode["gCi"] = { "<cmd>lua require'telescope.builtin'.lsp_incoming_calls()<cr>",
-  "Lsp Incoming Calls" }
-lvim.lsp.buffer_mappings.normal_mode["gCo"] = { "<cmd>lua require'telescope.builtin'.lsp_outgoing_calls()<cr>",
-  "Lsp Outgoing calls" }
-lvim.lsp.buffer_mappings.normal_mode["<leader>fg"] = { "<cmd>Telescope git_status<cr>", "Git Status" }
+-- lvim.lsp.buffer_mappings.normal_mode["gCi"] = { "<cmd>lua require'telescope.builtin'.lsp_incoming_calls()<cr>",
+--   "Lsp Incoming Calls(Telescope)" }
+-- lvim.lsp.buffer_mappings.normal_mode["gCo"] = { "<cmd>lua require'telescope.builtin'.lsp_outgoing_calls()<cr>",
+--   "Lsp Outgoing calls(Telescope)" }
+-- lvim.lsp.buffer_mappings.normal_mode["<leader>fg(Telescope)"] = { "<cmd>Telescope git_status<cr>", "Git Status" }
 
 
-
--- harpoon
-lvim.keys.normal_mode["<leader>hi"] = "<cmd>lua require 'harpoon.ui'.toggle_quick_menu()<cr>"
-lvim.keys.normal_mode["<leader>hp"] = "<cmd>lua require 'harpoon.ui'.nav_prev()<cr>"
-lvim.keys.normal_mode["<leader>hn"] = "<cmd>lua require 'harpoon.ui'.nav_next()<cr>"
-lvim.keys.normal_mode["<leader>ha"] = "<cmd>lua require 'harpoon.mark'.add_file()<cr>"
 
 -- telescope frecency
-lvim.keys.normal_mode["<leader>fo"] = "<cmd>lua require('telescope').extensions.recent_files.pick()<CR>"
+-- lvim.keys.normal_mode["<leader>fo"] = "<cmd>lua require('telescope').extensions.recent_files.pick()<CR>"
 
 vim.api.nvim_set_keymap('n', '<A-n>', ":MoveLine(1)<CR>", { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<A-p>', ":MoveLine(-1)<CR>", { noremap = true, silent = true })
@@ -213,10 +211,22 @@ command! ClearQuickFixList cexpr []
 -- lvim.builtin.cmp.formatting.source_names["copilot"] = "ghu_v9g2sqDpmXflqahsBGGLz7dqkHW46w2xqHIW"
 table.insert(lvim.builtin.cmp.sources, 1, { name = "copilot" })
 
-vim.cmd("nnoremap gy <cmd>lua require('goto-preview').goto_preview_definition()<CR>")
-vim.cmd("nnoremap gY <gcmd>lua require('goto-preview').goto_preview_implementation()<CR>")
-vim.cmd("nnoremap gP <cmd>lua require('goto-preview').close_all_win()<CR>")
+-- vim.cmd("nnoremap gy <cmd>lua require('goto-preview').goto_preview_definition()<CR>")
+-- vim.cmd("nnoremap gY <gcmd>lua require('goto-preview').goto_preview_implementation()<CR>")
+-- vim.cmd("nnoremap gP <cmd>lua require('goto-preview').close_all_win()<CR>")
+lvim.keys.normal_mode["gy"] = { "<cmd>lua require 'goto-preview'.goto_preview_definition()<cr>",
+  { desc = "Go to Preview Definiton(GoToPreview)" } }
+lvim.keys.normal_mode["gY"] = { "<cmd>lua require 'goto-preview'.goto_preview_implementation()<cr>",
+  { desc = "Go to Preview Implementation(GoToPreview)" } }
+lvim.keys.normal_mode["gP"] = { "<cmd>lua require 'goto-preview'.close_all_win()<cr>", { desc = "Close GoToPreview Win" } }
+-- lvim.builtin.which_key.mappings["gy"] = { "<cmd>lua require('goto-preview').goto_preview_definition()<CR>",
+--   { desc = "Goto Definition (Preview)", noremap = true, silent = true } }
 
+-- lvim.builtin.which_key.mappings["gY"] = { "<cmd>lua require('goto-preview').goto_preview_implementation()<CR>",
+--   { desc = "Goto Implementation (Preview)", noremap = true, silent = true } }
+
+-- lvim.builtin.which_key.mappings["gP"] = { "<cmd>lua require('goto-preview').close_all_win()<CR>",
+--   { desc = "Close All Windows (Preview)", noremap = true, silent = true } }
 
 
 -- ¬l
@@ -241,21 +251,27 @@ vim.cmd("nnoremap gP <cmd>lua require('goto-preview').close_all_win()<CR>")
 -- Change Telescope navigation to use j and k for navigation and n and p for history in both input and normal mode.
 -- we use protected-mode (pcall) just in case the plugin wasn't loaded yet.
 
+local hasLspLines, lspLines = pcall(require, "lsp_lines")
+if hasLspLines then
+  -- NOTE: does not work if callend once.
+  lspLines.toggle();
+  lspLines.toggle();
+end
+
 local hasPackageInfo, pi = pcall(require, "package-info")
 if hasPackageInfo then
-  -- Show dependency versions
-  vim.keymap.set("n", "<leader>pps", pi.show, { silent = true, noremap = true })
-  -- Hide dependency versions
-  vim.keymap.set("n", "<leader>ppc", pi.hide, { silent = true, noremap = true })
-  -- Update dependency on the line
-  vim.keymap.set("n", "<leader>ppu", pi.update, { silent = true, noremap = true })
-  -- Delete dependency on the line
-  vim.keymap.set("n", "<leader>ppd", pi.delete, { silent = true, noremap = true })
-  -- Install a new dependency
-  vim.keymap.set("n", "<leader>ppi", pi.install, { silent = true, noremap = true })
-  -- Install a different dependency version
-  vim.keymap.set("n", "<leader>ppp", pi.change_version, { silent = true, noremap = true })
+  lvim.builtin.which_key.mappings["pp"] = {
+    name = 'PackegeInfo',
+    s = { pi.show, "Show", { silent = true, noremap = true, desc = "Package Info Shwo" } },
+    c = { pi.hide, "Hide", { silent = true, noremap = true, desc = "Package Info Hide" } },
+    u = { pi.update, "Update", { silent = true, noremap = true, desc = "Package Info Update" } },
+    d = { pi.delete, "Delete", { silent = true, noremap = true, desc = "Package Info Delete" } },
+    i = { pi.install, "install", { silent = true, noremap = true, desc = "Package Info install" } },
+    p = { pi.change_version, "Change Version", { silent = true, noremap = true, desc = "Package Info Change Version" } },
+  }
 end
+
+lvim.builtin.which_key.mappings[":"] = { "<cmd>Legendary<CR>", "Legendary" }
 
 local _, actions = pcall(require, "telescope.actions")
 lvim.builtin.telescope.defaults.mappings = {
@@ -279,7 +295,7 @@ lvim.builtin.telescope.pickers.lsp_references = {
   show_line = false
 }
 
-lvim.builtin.which_key.setup.plugins.presets.g = false
+lvim.builtin.which_key.setup.plugins.presets.g = nil
 -- lvim.builtin.which_key.setup.plugins.presets.nav = false
 lvim.builtin.alpha.active = true
 lvim.builtin.alpha.mode = "dashboard"
@@ -372,6 +388,9 @@ lvim.builtin.telescope.on_config_done = function(telescope)
   pcall(telescope.load_extension, "recent_files")
   pcall(telescope.load_extension, "harpoon")
 end
+-- vim.api.nvim_set_keymap("n", "<Leader><Leader>",
+--   [[<cmd>lua require('telescope').extensions.recent_files.pick()<CR>]],
+--   { noremap = true, silent = true })
 
 lvim.builtin.lualine.options.globalstatus = true
 -- lvim.builtin.lualine.sections.lualine_z = { 'location', { 'lsp_progress' } }
@@ -674,6 +693,14 @@ lvim.plugins = {
   },
   { "smartpde/telescope-recent-files" },
   {
+    'ibhagwan/fzf-lua',
+    -- optional for icon support
+    requires = { 'nvim-tree/nvim-web-devicons' },
+    config = function()
+      require('fzf-lua').setup({})
+    end
+  },
+  {
     "AckslD/nvim-neoclip.lua",
     requires = {
       -- you'll need at least one of these
@@ -765,6 +792,7 @@ lvim.plugins = {
       -- Use vim surround-like keybindings
       vim.cmd('runtime macros/sandwich/keymap/surround.vim')
       -- '{' will insert space, '}' will not
+      ---@diagnostic disable-next-line: missing-parameter
       vim.g['sandwich#recipes'] = vim.list_extend(vim.g['sandwich#recipes'], {
         { buns = { '{ ', ' }' }, nesting = 1, match_syntax = 1, kind = { 'add', 'replace' }, action = { 'add' },
           input = { '{' } },
@@ -1160,22 +1188,29 @@ lvim.plugins = {
     config = function()
       -- [[quick-scope]]
       vim.g.qs_lazy_highlight = 1
+      vim.g.qs_highlight_on_keys = { 'f', 'F', 't', 'T' }
       vim.cmd [[ let g:qs_lazy_highlight = 1 ]]
     end
 
   },
   {
     "windwp/nvim-ts-autotag", config = function()
-      require('nvim-ts-autotag').setup({ virtual_text = false })
+      require('nvim-ts-autotag').setup()
     end
   },
   {
     "https://git.sr.ht/~whynothugo/lsp_lines.nvim",
     config = function()
-      require("lsp_lines").setup()
+      require("lsp_lines").setup({ virtual_text = true, enable = false })
     end,
   },
   { 'joechrisellis/lsp-format-modifications.nvim' },
+  {
+    'mrjones2014/legendary.nvim',
+    config = function()
+      require('legendary').setup({ which_key = { auto_register = true } })
+    end
+  },
   -- {
   --   'doums/monark.nvim',
   --   config = function()

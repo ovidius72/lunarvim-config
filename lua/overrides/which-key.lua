@@ -7,13 +7,22 @@ lvim.builtin.which_key.mappings["["] = { "<cmd>:NvimTreeToggle<cr>", "Toggle Exp
 lvim.builtin.which_key.mappings["]"] = { "<cmd>:NvimTreeFindFile<cr>", "Focus Explorer" }
 lvim.builtin.which_key.mappings["<Tab>"] = { "<C-^>", "Alternate Buffer" }
 lvim.builtin.which_key.mappings["u"] = { "<cmd>lua vim.diagnostic.open_float()<cr>", "Show Diagnostic Info" }
-lvim.builtin.which_key.mappings["ss"] = { "<cmd>:wa<cr>", "Save all buffers" }
+lvim.builtin.which_key.mappings["e"] = {
+  name = "Extras",
+  e = { "<cmd>BasicEasyAction<CR>", "BasicEasyAction" },
+  i = { "<cmd>lua require('easy-action').base_easy_action('i', nil, 'InsertLeave')<CR>", "BasicEasyAction Insert" },
+}
+-- lvim.builtin.which_key.mappings["ss"] = { "<cmd>:wa<cr>", "Save all buffers" }
+lvim.builtin.which_key.mappings["ss"] = { "<cmd>lua require'telescope.builtin'.current_buffer_fuzzy_find()<cr>",
+  "Find In Current Buffer" }
+lvim.builtin.which_key.mappings["sA"] = { "<cmd>FzfLua live_grep<cr>", "Grep with FZF" }
 lvim.builtin.which_key.mappings["sa"] = { "<cmd>Telescope grep_string search=<cr>", "Fuzzy Find In File" }
 lvim.builtin.which_key.mappings["sg"] = { "<cmd>Telescope live_grep<cr>", "Live Grep Text" }
 lvim.builtin.which_key.mappings["sw"] = { "<cmd>Telescope grep_string<cr>", "Find word under caret" }
-lvim.builtin.which_key.mappings["sG"] = { "<cmd>require'telescope.builtin'.grep_string{ shorten_path = true, word_match = '-w', only_sort_text = true, search = '' } <cr>",
+lvim.builtin.which_key.mappings["sG"] = { "<cmd>lua require'telescope.builtin'.grep_string{ shorten_path = true, word_match = '-w', only_sort_text = true, search = '' } <cr>",
   "Find word under caret" }
 lvim.builtin.which_key.mappings["sr"] = { "<cmd>lua require('spectre').open_file_search()<cr>", "Find and replace" }
+lvim.builtin.which_key.mappings["U"] = { "Toggle lsp lines" }
 
 lvim.builtin.which_key.mappings["b"] = {
   name = 'BUFFERS',
@@ -73,6 +82,24 @@ lvim.builtin.which_key.mappings["c"] = {
   },
   e = { "<cmd>Telescope quickfix<cr>", "Telescope Quickfix" },
 }
+
+-- lvim.builtin.which_key.mappings["gd"] = { "<cmd>Telescope lsp_definitions<cr>", "Go to Definition(Telescope)" }
+-- lvim.builtin.which_key.mappings["gr"] = { "<cmd>Telescope lsp_references<cr>", "Go to References(Telescope)" }
+-- lvim.builtin.which_key.mappings["gI"] = { "<cmd>lua require('telescope.builtin'.lsp_implementations()<cr>",
+--   "Go to Implementations(Telescope)" }
+
+lvim.builtin.which_key.mappings["gd"] = {
+  name = "DIFF",
+  f = { "<cmd>DiffviewFileHistory %<CR>", "FileHistory %" },
+  c = { "<cmd>DiffviewClose<CR>", "Close" },
+}
+lvim.builtin.which_key.mappings["ga"] = {
+  name = "GLANCE",
+  a = { "<cmd>Glance definition<CR>", "Glance Definition" },
+  r = { "<cmd>Glance references<CR>", "Glance References" },
+  d = { "<cmd>Glance type_definitions<CR>", "Glance Type Definition" },
+  i = { "<cmd>Glance Implementations<CR>", "Glance Implementations" },
+}
 lvim.builtin.which_key.mappings["q"] = {
   name = 'Quickfix',
   n = { "<cmd>cnext<cr>", "qf Next" },
@@ -84,11 +111,14 @@ lvim.builtin.which_key.mappings["q"] = {
 lvim.builtin.which_key.mappings["f"] = {
   name = 'Files',
   f = { require("lvim.core.telescope.custom-finders").find_project_files, "Find File" },
+  g = { "<Cmd>FzfLua git_status<cr>", "Find File" },
   e = {
     name = "+CONFIG",
     f = { "<cmd>lua require('telescope.builtin').git_files({ prompt_title = '<Lvim Files>', cwd = '~/.config/lvim' })<cr>",
       "Config files" }
   },
+  o = { "<cmd>lua require('telescope').extensions.recent_files.pick()<CR>", "Recent Files (Telescope)",
+    { noremap = true, silent = true } },
   r = { "<cmd>Telescope oldfiles<cr>", "Open Recent File" },
   s = { ":wa<cr>", "Save All" },
   S = { ":w<cr>", "Save Current " },
@@ -96,7 +126,18 @@ lvim.builtin.which_key.mappings["f"] = {
   w = { "<cmd>lua require('spectre').open_visual({ select_word = true })<cr>", "Specte" },
 }
 lvim.builtin.which_key.mappings["h"] = {
-  name = '+HOP',
+  name = '+HOP/Harpoon',
+  i = { "<cmd>lua require('harpoon.ui').toggle_quick_menu()<CR>", "Harpoon Toggle UI",
+    { desc = "Harpoon Prev", noremap = true, silent = true } },
+
+  p = { "<cmd>lua require('harpoon.ui').nav_prev()<CR>", "Harpoon Prev",
+    { desc = "Harpoon Prev", noremap = true, silent = true } },
+
+  n = { "<cmd>lua require('harpoon.ui').nav_next()<CR>", "Harpoon Next",
+    { desc = "Harpoon Next", noremap = true, silent = true } },
+
+  a = { "<cmd>lua require('harpoon.mark').add_file()<CR>", "Harpoon Add File",
+    { desc = "Harpoon Add File", noremap = true, silent = true } },
 }
 lvim.builtin.which_key.mappings["n"] = {
   name = "+DEBUG",
@@ -117,9 +158,20 @@ lvim.builtin.which_key.mappings["o"] = {
   F = { "<cmd>FormatModifications", "Format Modifications" },
   o = { "Organize Imports" },
   a = { "Import All" },
-  l = { "Debug Print" },
-  L = { "Debug Print (above)" },
-  p = { "Debug Print (above)" },
+  d = { "<cmd>DeleteDebugPrints<cr>", "Degud Print (Delete All)" },
+  l = { function() return require('debugprint').debugprint({ variable = true }) end, "Debug Print (variable)" },
+  L = { function() return require('debugprint').debugprint({ variable = true, above = true }) end,
+    "Debug Print (above, variable)" },
+  p = { function() return require('debugprint').debugprint({ above = true }) end, "Debug Print (above)" },
+  s = {
+    name = "Telescrope LSP",
+    S = { "<cmd>lua require'telescope.builtin'.lsp_dynamic_workspace_symbols()<cr>",
+      "Dynamic Workspace Symbols(Telescope)" },
+    s = { "<cmd>lua require'telescope.builtin'.lsp_workspace_symbols()<cr>", "Workspace Symbols(Telescope)" },
+    d = { "<cmd>lua require'telescope.builtin'.lsp_document_symbols()<cr>", "Document Symbols(Telescope)" },
+    i = { "<cmd>lua require'telescope.builtin'.lsp_incoming_calls()<cr>", "Incoming calls (Telescope)" },
+    o = { "<cmd>lua require'telescope.builtin'.lsp_outgoing_calls()<cr>", "Outgoing calls (Telescope)" },
+  }
 }
 -- Use which-key to add extra bindings with the leader-key prefix
 lvim.builtin.which_key.mappings["P"] = { "<cmd>Telescope projects<CR>", "Projects" }
@@ -139,6 +191,7 @@ lvim.builtin.which_key.mappings["t"] = {
   t = { "<cmd>TroubleToggle<cr>", "toggle trouble" },
   f = { "<cmd>Trouble lsp_definitions<cr>", "Definitions" },
   d = { "<cmd>Trouble document_diagnostics<cr>", "Diagnostics" },
+  p = { "<cmd>PickColor<CR>", "PickColor" },
   q = { "<cmd>Trouble quickfix<cr>", "QuickFix" },
   l = { "<cmd>Trouble loclist<cr>", "LocationList" },
   w = { "<cmd>Trouble workspace_diagnostics<cr>", "Wordspace Diagnostics" },
