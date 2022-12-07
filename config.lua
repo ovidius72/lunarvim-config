@@ -84,16 +84,6 @@ lvim.keys.insert_mode["<A-i>"] = { "<cmd>PickColorInsert<cr>", { desc = "PickCol
 -- keymappings [view all the defaults by pressing <leader>Lk]
 lvim.leader = "space"
 
--- TELESCOPE OVERRIDES
-lvim.builtin.telescope.pickers.live_grep = {
-  only_sort_text = true,
-  theme = "ivy"
-}
-lvim.builtin.telescope.pickers.grep_string = {
-  only_sort_text = true,
-  theme = "ivy"
-}
----
 
 lvim.builtin.cmp.formatting.kind_icons = require('user.icons').kind
 lvim.builtin.cmp.formatting.format = function(entry, vim_item)
@@ -141,13 +131,43 @@ lvim.builtin.cmp.formatting.format = function(entry, vim_item)
   return vim_item
 end
 
+-- Replace nvim-cmp sources.
+local sources_to_delete = {
+  "buffer",
+}
+local new_sources = vim.tbl_filter(function(source)
+  return not vim.tbl_contains(sources_to_delete, source.name)
+end, lvim.builtin.cmp.sources)
+
+---@diagnostic disable-next-line: missing-parameter
+vim.list_extend(new_sources, {
+  {
+    name = "buffer",
+    option = {
+      get_bufnrs = function()
+        -- all buffers
+        return vim.api.nvim_list_bufs()
+
+        -- visible buffers
+        -- local bufs = {}
+        -- for _, win in ipairs(vim.api.nvim_list_wins()) do
+        --   bufs[vim.api.nvim_win_get_buf(win)] = true
+        -- end
+        -- return vim.tbl_keys(bufs)
+      end
+    }
+  },
+  { name = 'nvim_lsp_signature_help' }
+})
+--- end nvim-cmp source replace.
+
+lvim.builtin.cmp.sources = new_sources
+
 lvim.keys.normal_mode['<leader>q'] = false
 -- add your own keymapping
--- lvim.keys.insert_mode["<C-l>"] = "<Esc>ea"
--- lvim.keys.insert_mode["<C-y>"] = "<Esc>gea"
+lvim.keys.insert_mode["<C-l>"] = "<Esc>ea"
+lvim.keys.insert_mode["<C-y>"] = "<Esc>gea"
 lvim.keys.insert_mode["jj"] = "<Esc>"
--- lvim.keys.normal_mode["<leader>wd"] = "<C-w>q"
--- lvim.keys.normal_mode["<leader><Tab>"] = "<C-^>"
 lvim.keys.normal_mode["]g"] = { "<cmd>lua require 'gitsigns'.next_hunk()<cr>", { desc = "Next Git Hunk" } }
 lvim.keys.normal_mode["[g"] = { "<cmd>lua require 'gitsigns'.prev_hunk()<cr>", { desc = "Prev Git Hunk" } }
 lvim.keys.normal_mode["gh"] = { "<cmd>lua require 'gitsigns'.preview_hunk()<cr>",
@@ -273,21 +293,60 @@ end
 
 lvim.builtin.which_key.mappings[":"] = { "<cmd>Legendary<CR>", "Legendary" }
 
+-- TELESCOPE OVERRIDES
 local _, actions = pcall(require, "telescope.actions")
+lvim.builtin.telescope.pickers.live_grep = {
+  only_sort_text = true,
+  theme = "ivy"
+}
+lvim.builtin.telescope.pickers.buffers = {
+  mappings = {
+    i = {
+      ["<C-d>"] = actions.delete_buffer,
+      ["<C-j>"] = actions.move_selection_next,
+      ["<C-k>"] = actions.move_selection_previous,
+      ["<C-n>"] = actions.move_selection_next,
+      ["<C-p>"] = actions.move_selection_previous,
+      ["<C-c>"] = actions.close,
+      ["<C-]>"] = actions.cycle_history_next,
+      ["<C-[>"] = actions.cycle_history_prev,
+    },
+    n = {
+      ["dd"] = actions.delete_buffer,
+      ["<C-j>"] = actions.move_selection_next,
+      ["<C-k>"] = actions.move_selection_previous,
+      ["<C-n>"] = actions.move_selection_next,
+      ["<C-p>"] = actions.move_selection_previous,
+      ["<C-c>"] = actions.close,
+      ["<C-]>"] = actions.cycle_history_next,
+      ["<C-[>"] = actions.cycle_history_prev,
+    },
+  }
+}
+lvim.builtin.telescope.pickers.grep_string = {
+  only_sort_text = true,
+  theme = "ivy"
+}
+---
 lvim.builtin.telescope.defaults.mappings = {
-  --   -- for input mode
   i = {
     ["<C-j>"] = actions.move_selection_next,
     ["<C-k>"] = actions.move_selection_previous,
-    ["<C-n>"] = actions.cycle_history_next,
-    ["<C-p>"] = actions.cycle_history_prev,
+    ["<C-n>"] = actions.move_selection_next,
+    ["<C-p>"] = actions.move_selection_previous,
     ["<C-c>"] = actions.close,
+    ["<C-]>"] = actions.cycle_history_next,
+    ["<C-[>"] = actions.cycle_history_prev,
+    ["<esc>"] = actions.close,
     -- ["<C-h>"] = "which_key",
   },
   --   -- for normal mode
   n = {
     ["<C-j>"] = actions.move_selection_next,
     ["<C-k>"] = actions.move_selection_previous,
+    ["<C-]>"] = actions.cycle_history_next,
+    ["<C-[>"] = actions.cycle_history_prev,
+    ["<esc>"] = actions.close,
   },
 }
 
@@ -1211,6 +1270,7 @@ lvim.plugins = {
       require('legendary').setup({ which_key = { auto_register = true } })
     end
   },
+  { "hrsh7th/cmp-nvim-lsp-signature-help" }
   -- {
   --   'doums/monark.nvim',
   --   config = function()

@@ -95,10 +95,10 @@ lvim.builtin.which_key.mappings["gd"] = {
 }
 lvim.builtin.which_key.mappings["ga"] = {
   name = "GLANCE",
-  a = { "<cmd>Glance definition<CR>", "Glance Definition" },
+  a = { "<cmd>Glance definitions<CR>", "Glance Definition" },
   r = { "<cmd>Glance references<CR>", "Glance References" },
   d = { "<cmd>Glance type_definitions<CR>", "Glance Type Definition" },
-  i = { "<cmd>Glance Implementations<CR>", "Glance Implementations" },
+  i = { "<cmd>Glance implementations<CR>", "Glance Implementations" },
 }
 lvim.builtin.which_key.mappings["q"] = {
   name = 'Quickfix',
@@ -111,7 +111,8 @@ lvim.builtin.which_key.mappings["q"] = {
 lvim.builtin.which_key.mappings["f"] = {
   name = 'Files',
   f = { require("lvim.core.telescope.custom-finders").find_project_files, "Find File" },
-  g = { "<Cmd>FzfLua git_status<cr>", "Find File" },
+  G = { "<Cmd>FzfLua git_status<cr>", "Find File" },
+  g = { "<Cmd>lua require('telescope.builtin').git_status()<cr>", "Find File" },
   e = {
     name = "+CONFIG",
     f = { "<cmd>lua require('telescope.builtin').git_files({ prompt_title = '<Lvim Files>', cwd = '~/.config/lvim' })<cr>",
