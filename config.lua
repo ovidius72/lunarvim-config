@@ -228,7 +228,6 @@ vim.cmd [[
 command! ClearQuickFixList cexpr []
 ]]
 
--- lvim.builtin.cmp.formatting.source_names["copilot"] = "ghu_v9g2sqDpmXflqahsBGGLz7dqkHW46w2xqHIW"
 table.insert(lvim.builtin.cmp.sources, 1, { name = "copilot" })
 
 -- vim.cmd("nnoremap gy <cmd>lua require('goto-preview').goto_preview_definition()<CR>")
