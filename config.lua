@@ -85,51 +85,51 @@ lvim.keys.insert_mode["<A-i>"] = { "<cmd>PickColorInsert<cr>", { desc = "PickCol
 lvim.leader = "space"
 
 
-lvim.builtin.cmp.formatting.kind_icons = require('user.icons').kind
-lvim.builtin.cmp.formatting.format = function(entry, vim_item)
-  local max_width = lvim.builtin.cmp.formatting.max_width
-  local original_kind = vim_item.kind
-  if max_width ~= 0 and #vim_item.abbr > max_width then
-    vim_item.abbr = string.sub(vim_item.abbr, 1, max_width - 1) .. lvim.icons.ui.Ellipsis
-  end
-  if lvim.use_icons then
-    vim_item.kind = lvim.builtin.cmp.formatting.kind_icons[vim_item.kind]
+-- lvim.builtin.cmp.formatting.kind_icons = require('user.icons').kind
+-- lvim.builtin.cmp.formatting.format = function(entry, vim_item)
+--   local max_width = lvim.builtin.cmp.formatting.max_width
+--   local original_kind = vim_item.kind
+--   if max_width ~= 0 and #vim_item.abbr > max_width then
+--     vim_item.abbr = string.sub(vim_item.abbr, 1, max_width - 1) .. lvim.icons.ui.Ellipsis
+--   end
+--   if lvim.use_icons then
+--     vim_item.kind = lvim.builtin.cmp.formatting.kind_icons[vim_item.kind]
 
-    -- TODO: not sure why I can't put this anywhere else
-    vim.api.nvim_set_hl(0, "CmpItemKindCopilot", { fg = "#6CC644" })
-    if entry.source.name == "copilot" then
-      vim_item.kind = lvim.icons.git.Octoface
-      vim_item.kind_hl_group = "CmpItemKindCopilot"
-    end
+--     -- TODO: not sure why I can't put this anywhere else
+--     vim.api.nvim_set_hl(0, "CmpItemKindCopilot", { fg = "#6CC644" })
+--     if entry.source.name == "copilot" then
+--       vim_item.kind = lvim.icons.git.Octoface
+--       vim_item.kind_hl_group = "CmpItemKindCopilot"
+--     end
 
-    vim.api.nvim_set_hl(0, "CmpItemKindTabnine", { fg = "#CA42F0" })
-    if entry.source.name == "cmp_tabnine" then
-      vim_item.kind = lvim.icons.misc.Robot
-      vim_item.kind_hl_group = "CmpItemKindTabnine"
-    end
+--     vim.api.nvim_set_hl(0, "CmpItemKindTabnine", { fg = "#CA42F0" })
+--     if entry.source.name == "cmp_tabnine" then
+--       vim_item.kind = lvim.icons.misc.Robot
+--       vim_item.kind_hl_group = "CmpItemKindTabnine"
+--     end
 
-    vim.api.nvim_set_hl(0, "CmpItemKindCrate", { fg = "#F64D00" })
-    if entry.source.name == "crates" then
-      vim_item.kind = lvim.icons.misc.Package
-      vim_item.kind_hl_group = "CmpItemKindCrate"
-    end
+--     vim.api.nvim_set_hl(0, "CmpItemKindCrate", { fg = "#F64D00" })
+--     if entry.source.name == "crates" then
+--       vim_item.kind = lvim.icons.misc.Package
+--       vim_item.kind_hl_group = "CmpItemKindCrate"
+--     end
 
-    if entry.source.name == "lab.quick_data" then
-      vim_item.kind = lvim.icons.misc.CircuitBoard
-      vim_item.kind_hl_group = "CmpItemKindConstant"
-    end
+--     if entry.source.name == "lab.quick_data" then
+--       vim_item.kind = lvim.icons.misc.CircuitBoard
+--       vim_item.kind_hl_group = "CmpItemKindConstant"
+--     end
 
-    vim.api.nvim_set_hl(0, "CmpItemKindEmoji", { fg = "#FDE030" })
-    if entry.source.name == "emoji" then
-      vim_item.kind = lvim.icons.misc.Smiley
-      vim_item.kind_hl_group = "CmpItemKindEmoji"
-    end
-  end
-  vim_item.menu = lvim.builtin.cmp.formatting.source_names[entry.source.name] .. " " .. original_kind
-  vim_item.dup = lvim.builtin.cmp.formatting.duplicates[entry.source.name]
-      or lvim.builtin.cmp.formatting.duplicates_default
-  return vim_item
-end
+--     vim.api.nvim_set_hl(0, "CmpItemKindEmoji", { fg = "#FDE030" })
+--     if entry.source.name == "emoji" then
+--       vim_item.kind = lvim.icons.misc.Smiley
+--       vim_item.kind_hl_group = "CmpItemKindEmoji"
+--     end
+--   end
+--   vim_item.menu = lvim.builtin.cmp.formatting.source_names[entry.source.name] .. " " .. original_kind
+--   vim_item.dup = lvim.builtin.cmp.formatting.duplicates[entry.source.name]
+--       or lvim.builtin.cmp.formatting.duplicates_default
+--   return vim_item
+-- end
 
 -- Replace nvim-cmp sources.
 local sources_to_delete = {
@@ -417,12 +417,14 @@ lvim.builtin.terminal.execs["lazygit"] = nil
 lvim.builtin.telescope_fzy = true
 lvim.builtin.telescope.defaults.layout_strategy = 'vertical'
 lvim.builtin.telescope.defaults.sorting_strategy = 'descending'
-lvim.builtin.telescope.defaults.layout_config.vertical = {
-  mirror = false,
-  preview_cutoff = 0,
-  height = 0.9,
-  width = 0.9,
-  prompt_position = "bottom",
+lvim.builtin.telescope.defaults.layout_config = {
+  vertical = {
+    mirror = false,
+    preview_cutoff = 0,
+    height = 0.9,
+    width = 0.9,
+    prompt_position = "bottom",
+  }
 }
 lvim.builtin.trouble = true
 lvim.use_icons = true
@@ -1125,7 +1127,7 @@ lvim.plugins = {
     requires = {
       "neovim/nvim-lspconfig",
       "smiteshp/nvim-navic",
-      "kyazdani42/nvim-web-devicons", -- optional
+      "kyazdani42/nvim-web-devicons",
     },
     config = function()
       require("barbecue").setup()
@@ -1145,9 +1147,7 @@ lvim.plugins = {
     'Wansmer/treesj',
     requires = { 'nvim-treesitter' },
     config = function()
-      require('treesj').setup({
-        use_default_keymaps = false,
-      })
+      require('treesj').setup({ check_syntax_error = false, use_default_keymaps = false, max_join_length = 500 })
     end,
   },
   {
@@ -1270,7 +1270,16 @@ lvim.plugins = {
       require('legendary').setup({ which_key = { auto_register = true } })
     end
   },
-  { "hrsh7th/cmp-nvim-lsp-signature-help" }
+  { "hrsh7th/cmp-nvim-lsp-signature-help" },
+  {
+    "chrisgrieser/nvim-various-textobjs",
+    config = function()
+      require("various-textobjs").setup({ useDefaultKeymaps = true })
+    end,
+  }
+  -- {
+  --   "ldelossa/nvim-ide",
+  -- },
   -- {
   --   'doums/monark.nvim',
   --   config = function()
