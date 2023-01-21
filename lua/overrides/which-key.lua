@@ -110,7 +110,8 @@ lvim.builtin.which_key.mappings["q"] = {
 
 lvim.builtin.which_key.mappings["f"] = {
   name = 'Files',
-  f = { require("lvim.core.telescope.custom-finders").find_project_files, "Find File" },
+  -- f = { require("lvim.core.telescope.custom-finders").find_project_files, "Find File" },
+  f = { require("lvim.lsp.utils").format, "Format" },
   G = { "<Cmd>FzfLua git_status<cr>", "Find File" },
   g = { "<Cmd>lua require('telescope.builtin').git_status()<cr>", "Find File" },
   e = {
@@ -118,7 +119,8 @@ lvim.builtin.which_key.mappings["f"] = {
     f = { "<cmd>lua require('telescope.builtin').git_files({ prompt_title = '<Lvim Files>', cwd = '~/.config/lvim' })<cr>",
       "Config files" }
   },
-  o = { "<cmd>lua require('telescope').extensions.recent_files.pick()<CR>", "Recent Files (Telescope)",
+  o = { "Organize Imports" },
+  h = { "<cmd>lua require('telescope').extensions.recent_files.pick()<CR>", "Recent Files (Telescope)",
     { noremap = true, silent = true } },
   r = { "<cmd>Telescope oldfiles<cr>", "Open Recent File" },
   s = { ":wa<cr>", "Save All" },

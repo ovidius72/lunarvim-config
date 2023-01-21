@@ -11,7 +11,7 @@ an executable
 local opts = { silent = true, remap = false }
 
 -- general
-lvim.colorscheme = "github_dark_default"
+-- lvim.colorscheme = "bluloco"
 -- lvim.colorscheme = "arctic"
 -- vim.g.material_style = 'lighter'
 
@@ -604,7 +604,7 @@ lvim.plugins = {
   { 'sam4llis/nvim-tundra' },
   {
     "vuki656/package-info.nvim",
-    requires = "MunifTanjim/nui.nvim",
+    dependencies = "MunifTanjim/nui.nvim",
     configure = function()
       require('package-info').setup()
     end
@@ -638,7 +638,7 @@ lvim.plugins = {
     end
   },
   { "ThePrimeagen/harpoon",
-    requires = {
+    dependencies = {
       "nvim-lua/plenary.nvim",
     },
     config = function()
@@ -695,7 +695,7 @@ lvim.plugins = {
     config = function()
       local saga = require('lspsaga')
       local configModule = require('user.plugins.saga')
-      saga.init_lsp_saga(configModule.config)
+      saga.setup(configModule.NewConfig)
     end
   },
   -- { "folke/tokyonight.nvim" },
@@ -706,7 +706,7 @@ lvim.plugins = {
   },
   {
     "tanvirtin/vgit.nvim",
-    requires = {
+    dependencies = {
       "nvim-lua/plenary.nvim",
       config = function()
         require("vgit").setup()
@@ -715,10 +715,10 @@ lvim.plugins = {
   },
   {
     "catppuccin/nvim",
-    as = "catppuccin"
+    name = "catppuccin"
   },
   { "SmiteshP/nvim-gps",
-    requires = "nvim-treesitter/nvim-treesitter",
+    dependencies = "nvim-treesitter/nvim-treesitter",
     config = function()
       require("nvim-gps").setup(require "user.plugins.configs.gps")
     end,
@@ -739,7 +739,7 @@ lvim.plugins = {
   },
   {
     "nvim-telescope/telescope-fzy-native.nvim",
-    run = "make",
+    build = "make",
     event = "BufRead",
   },
   {
@@ -747,7 +747,7 @@ lvim.plugins = {
     config = function()
       require "telescope".load_extension("frecency")
     end,
-    requires = {
+    dependencies = {
       { 'kkharji/sqlite.lua', module = 'sqlite' },
     },
   },
@@ -755,14 +755,14 @@ lvim.plugins = {
   {
     'ibhagwan/fzf-lua',
     -- optional for icon support
-    requires = { 'nvim-tree/nvim-web-devicons' },
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
     config = function()
       require('fzf-lua').setup({})
     end
   },
   {
     "AckslD/nvim-neoclip.lua",
-    requires = {
+    dependencies = {
       -- you'll need at least one of these
       { 'kkharji/sqlite.lua', module = 'sqlite' },
       { 'nvim-telescope/telescope.nvim' },
@@ -808,13 +808,13 @@ lvim.plugins = {
   { "EdenEast/nightfox.nvim" },
   { "B4mbus/oxocarbon-lua.nvim" },
   { "tpope/vim-repeat" },
-  {
-    "nvim-telescope/telescope-project.nvim",
-    event = "BufWinEnter",
-    setup = function()
-      vim.cmd [[packadd telescope.nvim]]
-    end,
-  },
+  -- {
+  --   "nvim-telescope/telescope-project.nvim",
+  --   event = "BufWinEnter",
+  --   init = function()
+  --     vim.cmd [[packadd telescope.nvim]]
+  --   end,
+  -- },
   { "hrsh7th/cmp-emoji" },
   { "stevearc/dressing.nvim" },
   {
@@ -835,14 +835,17 @@ lvim.plugins = {
       require('user.plugins.typescript-config')
     end },
   { "ray-x/navigator.lua",
-    requires = {
-      { 'ray-x/guihua.lua', run = 'cd lua/fzy && make' },
+    dependencies = {
+      {
+        'ray-x/guihua.lua',
+        build = 'cd lua/fzy && make'
+      },
       { 'neovim/nvim-lspconfig' },
     }
   },
   {
     "gaelph/logsitter.nvim",
-    requires = {
+    dependencies = {
       "nvim-treesitter/nvim-treesitter"
     }
   },
@@ -883,7 +886,7 @@ lvim.plugins = {
     end
   },
   { 'mrjones2014/smart-splits.nvim' },
-  { 'fedepujol/move.nvim' },
+  { 'ur4ltz/move.nvim' },
   -- {
   --   "f-person/git-blame.nvim",
   --   event = "BufRead",
@@ -1059,6 +1062,20 @@ lvim.plugins = {
     end,
   },
   {
+    'uloco/bluloco.nvim',
+    lazy = false,
+    priority = 1000,
+    dependencies = { 'rktjmp/lush.nvim' },
+    config = function()
+      -- your optional config goes here, see below.
+      require('bluloco').setup({
+        style = "dark",
+        italics = true,
+      })
+      vim.cmd([[colorscheme bluloco]])
+    end,
+  },
+  {
     'andrewferrier/debugprint.nvim',
     config = function()
       require('debugprint').setup({
@@ -1071,7 +1088,7 @@ lvim.plugins = {
   },
   { "nvim-neotest/neotest-vim-test" },
   -- { "SmiteshP/nvim-navic",
-  --   requires = {
+  --   dependencies = {
   --     "neovim/nvim-lspconfig"
   --   }
   -- },
@@ -1098,10 +1115,7 @@ lvim.plugins = {
   end },
   {
     "nvim-neotest/neotest",
-    wants = {
-      "neotest/jest"
-    },
-    requires = {
+    dependencies = {
       "nvim-lua/plenary.nvim",
       "nvim-treesitter/nvim-treesitter",
       "antoinemadec/FixCursorHold.nvim",
@@ -1121,17 +1135,17 @@ lvim.plugins = {
   --     require('winbar').setup({})
   --   end
   -- },
-  {
-    "utilyre/barbecue.nvim",
-    requires = {
-      "neovim/nvim-lspconfig",
-      "smiteshp/nvim-navic",
-      "kyazdani42/nvim-web-devicons",
-    },
-    config = function()
-      require("barbecue").setup()
-    end,
-  },
+  -- {
+  --   "utilyre/barbecue.nvim",
+  --   dependencies = {
+  --     "neovim/nvim-lspconfig",
+  --     "smiteshp/nvim-navic",
+  --     "kyazdani42/nvim-web-devicons",
+  --   },
+  --   config = function()
+  --     require("barbecue").setup({})
+  --   end,
+  -- },
   -- {
   --   "gbprod/yanky.nvim",
   --   config = function()
@@ -1144,14 +1158,14 @@ lvim.plugins = {
   -- },
   {
     'Wansmer/treesj',
-    requires = { 'nvim-treesitter' },
+    dependencies = { 'nvim-treesitter' },
     config = function()
       require('treesj').setup({ check_syntax_error = false, use_default_keymaps = false, max_join_length = 500 })
     end,
   },
   {
     'Weissle/easy-action',
-    requires = {
+    dependencies = {
       {
         "kevinhwang91/promise-async",
         module = { "async" },
@@ -1240,24 +1254,24 @@ lvim.plugins = {
         },
       })
     end },
-  { "rockyzhang24/arctic.nvim", requires = { "rktjmp/lush.nvim" } },
-  {
-    "unblevable/quick-scope",
-    config = function()
-      -- [[quick-scope]]
-      vim.g.qs_lazy_highlight = 1
-      vim.g.qs_highlight_on_keys = { 'f', 'F', 't', 'T' }
-      vim.cmd [[ let g:qs_lazy_highlight = 1 ]]
-    end
+  { "rockyzhang24/arctic.nvim", dependencies = { "rktjmp/lush.nvim" } },
+  -- {
+  --   "unblevable/quick-scope",
+  --   config = function()
+  --     -- [[quick-scope]]
+  --     vim.g.qs_lazy_highlight = 1
+  --     vim.g.qs_highlight_on_keys = { 'f', 'F', 't', 'T' }
+  --     vim.cmd [[ let g:qs_lazy_highlight = 1 ]]
+  --   end
 
-  },
+  -- },
   {
     "windwp/nvim-ts-autotag", config = function()
       require('nvim-ts-autotag').setup()
     end
   },
   {
-    "https://git.sr.ht/~whynothugo/lsp_lines.nvim",
+    url = "https://git.sr.ht/~whynothugo/lsp_lines.nvim",
     config = function()
       require("lsp_lines").setup({ virtual_text = true, enable = false })
     end,
@@ -1292,7 +1306,7 @@ lvim.plugins = {
   --       -- add any options here
   --     })
   --   end,
-  --   requires = {
+  --   dependencies = {
   --     -- if you lazy-load any plugin below, make sure to add proper `module="..."` entries
   --     "MunifTanjim/nui.nvim",
   --     -- OPTIONAL:
